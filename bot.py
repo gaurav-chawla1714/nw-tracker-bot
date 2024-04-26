@@ -9,13 +9,18 @@ import time
 
 load_dotenv()
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_PATH')
 
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 
 CHANNEL_ID = int(os.getenv('CHANNEL_ID'))
 
-bot = commands.Bot(command_prefix="!", intents=discord.Intents.all(), help_command=None,)
+messages_only = discord.Intents.none()
+messages_only.message_content = True
+messages_only.guilds = True
+messages_only.guild_messages = True
+
+bot = commands.Bot(command_prefix="!", intents=messages_only, help_command=None)
 
 @bot.event
 async def on_ready():
