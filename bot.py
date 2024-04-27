@@ -15,12 +15,12 @@ BOT_TOKEN = os.getenv('BOT_TOKEN')
 
 CHANNEL_ID = int(os.getenv('CHANNEL_ID'))
 
-messages_only = discord.Intents.none()
-messages_only.message_content = True
-messages_only.guilds = True
-messages_only.guild_messages = True
+custom_intents = discord.Intents.none()
+custom_intents.message_content = True
+custom_intents.guilds = True
+custom_intents.guild_messages = True
 
-bot = commands.Bot(command_prefix="!", intents=messages_only, help_command=None)
+bot = commands.Bot(command_prefix="!", intents=custom_intents, help_command=None)
 
 @bot.event
 async def on_ready():
@@ -71,6 +71,8 @@ async def p(ctx):
         await ctx.send(f'Assets: ${str(assets)}')
         await ctx.send(f'Liabilities: ${str(liabilities)}')
         await ctx.send(f'Net Worth: ${str(round(assets + liabilities, 2))}')
+    else:
+        await ctx.send("Please include an image for me to parse.")
 
 
 def get_local_time():
