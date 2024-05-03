@@ -6,6 +6,7 @@ from PIL import Image
 import re
 import pytesseract
 import time
+import datetime
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
@@ -66,11 +67,8 @@ async def p(ctx):
         await ctx.send("Please include an image for me to parse.")
     else:
         attachment = ctx.message.attachments[0]
-        message_timestamp = ctx.message.created_at
 
         await attachment.save("temp_image.png")
-
-        await ctx.send(message_timestamp)
 
         text = pytesseract.image_to_string(Image.open("temp_image.png"))
 
@@ -82,16 +80,36 @@ async def p(ctx):
         assets = convert_money_to_float(nw_list[0])
         liabilities = convert_money_to_float(nw_list[1])
 
-        await ctx.send(f'Assets: ${str(assets)}')
-        await ctx.send(f'Liabilities: ${str(liabilities)}')
-        await ctx.send(f'Net Worth: ${str(round(assets + liabilities, 2))}')
+        await ctx.send(f'Assets: ${str(assets)}\nLiabilities: ${str(liabilities)}\nNet Worth: ${str(round(assets + liabilities, 2))}')
+
+        sheets_service = create_sheets_service()
+
+        latest_row = int(read_sheet(service=sheets_service, range_name="B1:B1")[0][0])
+
+        current_row = latest_row + 1
+
+        if not update_sheet(service=sheets_service, range_name="B1:B1", data=[[str(current_row)]]):
+            await ctx.send("Could not update the row counter!")
+            return
+
+        sheets_formatted_time = datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+
+        info_list = [[sheets_formatted_time, str(assets), str(abs(liabilities)), str(round(assets + liabilities, 2))]]
+        range_name = f'B{current_row}:E{current_row}'
+
+        if update_sheet(service=sheets_service, range_name=range_name, data=info_list):
+            await ctx.send("Google Sheets successfully updated.")
+        else:
+            await ctx.send("Something went wrong while updating the Google Sheet!")
+
+
 
 
 
 
 
 def get_local_time():
-    return time.strftime("%H:%M:%S", time.localtime()) + " (EST)."
+    return datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S") + " (EST)."
 
 def convert_money_to_float(money_str: str) -> float:
     return float(money_str.replace('$', '').replace(',', ''))
@@ -103,16 +121,21 @@ def create_sheets_service():
 
     return service
 
-def read_sheet(service, range_name):
+def read_sheet(service, range_name) -> list:
     sheet = service.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID, range=range_name).execute()
     values = sheet.get('values', [])
     if not values:
         print('No data found.')
-    else:
-        for row in values:
-            print(row)
-
     return values
+
+def update_sheet(service, range_name: str, data: list) -> bool:
+    body = {'values': data}
+    try:
+        service.spreadsheets().values().update(spreadsheetId=SPREADSHEET_ID, range=range_name, valueInputOption="USER_ENTERED", body=body).execute()
+        return True
+    except:
+        return False
+
 
 
 bot.run(BOT_TOKEN)
