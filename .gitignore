@@ -1,4 +1,5 @@
-# for obvious reasons
 .env
 
 temp_image.png
+
+*.json
