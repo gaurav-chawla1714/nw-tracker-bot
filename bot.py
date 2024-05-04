@@ -31,6 +31,8 @@ custom_intents.guild_messages = True
 bot = commands.Bot(command_prefix="!",
                    intents=custom_intents, help_command=None)
 
+SUPPORTED_COMMANDS = ["status"]
+
 
 @bot.event
 async def on_ready():
@@ -43,12 +45,12 @@ async def on_ready():
 async def help(ctx, *args):
     if args:
         if args[0] == "status":
-            await ctx.send('Write !status + "t"')
+            await ctx.send('Type "!status t"')
         else:
             await ctx.send("Invalid command.")
 
     else:
-        await ctx.send("supported help commands: status")
+        await ctx.send("Currently supported commands:\n1.) status")
 
 
 @bot.command()
@@ -57,13 +59,13 @@ async def status(ctx, *args):
         if args[0] == "t":
             await ctx.send("The local time is " + get_formatted_local_datetime() + " (EST).")
     else:
-        await ctx.send("You didn't specify what status you wanted.")
+        await ctx.send("Please specify a type of status.")
 
 
 @bot.command()
 async def p(ctx):
     if not ctx.message.attachments:
-        await ctx.send("Please include an image for me to parse.")
+        await ctx.send("Please include an image to parse.")
     else:
         attachment = ctx.message.attachments[0]
 
