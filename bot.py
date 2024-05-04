@@ -18,10 +18,10 @@ load_dotenv()
 
 API_SCOPES = os.getenv("API_SCOPES").split()
 SERVICE_ACCOUNT_PATH = os.getenv("SERVICE_ACCOUNT_PATH")
-pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_PATH')
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 CHANNEL_ID = int(os.getenv('CHANNEL_ID'))
 SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
+pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_PATH')
 
 custom_intents = discord.Intents.none()
 custom_intents.message_content = True
