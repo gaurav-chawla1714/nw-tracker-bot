@@ -88,10 +88,16 @@ async def p(ctx):
         latest_row = read_sheet(service=service, range_name="A2:A2")
 
         if not latest_row:
-            await ctx.send("There is no value for the latest row. Manually calculating the latest row...")
-            return
-            # manual calculation
-            # latest_row_int =
+            await ctx.send("There is no value for the latest row number. Manually calculating which row the latest entry is in.")
+
+            values = read_sheet(service=service, range_name='B4:E')
+
+            latest_row_int = len(values) + 3
+
+            if not update_sheet(service, 'A2:A2', [[str(latest_row_int)]]):
+                await ctx.send("Something went wrong while updating the Google Sheet with the latest row number.")
+                return
+
         else:
             latest_row_int = int(latest_row[0][0])
 
