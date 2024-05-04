@@ -24,7 +24,8 @@ custom_intents.message_content = True
 custom_intents.guilds = True
 custom_intents.guild_messages = True
 
-bot = commands.Bot(command_prefix="!", intents=custom_intents, help_command=None)
+bot = commands.Bot(command_prefix="!",
+                   intents=custom_intents, help_command=None)
 
 
 @bot.event
@@ -32,6 +33,7 @@ async def on_ready():
     channel = bot.get_channel(CHANNEL_ID)
 
     await channel.send("NW Tracker is now online. Local time is " + get_formatted_local_datetime() + " (EST).")
+
 
 @bot.command()
 async def help(ctx, *args):
@@ -44,6 +46,7 @@ async def help(ctx, *args):
     else:
         await ctx.send("supported help commands: status")
 
+
 @bot.command()
 async def status(ctx, *args):
     if args:
@@ -51,6 +54,7 @@ async def status(ctx, *args):
             await ctx.send("The local time is " + get_formatted_local_datetime() + " (EST).")
     else:
         await ctx.send("You didn't specify what status you wanted.")
+
 
 @bot.command()
 async def a(ctx):
@@ -65,7 +69,8 @@ async def a(ctx):
     else:
         latest_row_int = int(latest_row[0][0])
 
-    latest_row_values = read_sheet(service=sheets_service, range_name=f'B{latest_row_int}:E{latest_row_int}')
+    latest_row_values = read_sheet(
+        service=sheets_service, range_name=f'B{latest_row_int}:E{latest_row_int}')
 
     if not latest_row_values:
         await ctx.send("There doesn't seem to be an entry for today's date. Creating new entry...")
@@ -85,14 +90,9 @@ async def a(ctx):
 
         else:
             await ctx.send("There is no existing entry for today. A new row will be created.")
-            
+
             time.sleep(3)
 
-
-
-
-
-        
 
 @bot.command()
 async def p(ctx):
@@ -117,9 +117,11 @@ async def p(ctx):
 
         sheets_service = create_sheets_service()
 
-        latest_row = int(read_sheet(service=sheets_service, range_name="B1:B1")[0][0])
+        latest_row = int(read_sheet(
+            service=sheets_service, range_name="B1:B1")[0][0])
 
-        latest_row_date = read_sheet(service=sheets_service, range_name=f'B{latest_row}:E{latest_row}')
+        latest_row_date = read_sheet(
+            service=sheets_service, range_name=f'B{latest_row}:E{latest_row}')
 
         print(latest_row_date)
 
@@ -139,15 +141,10 @@ async def p(ctx):
         # else:
         #     await ctx.send("Something went wrong while updating the Google Sheet!")
 
-
         # fetch latest row
         # check to see if date is the same as today's date
         # if it is, overwrite existing entry
         # if not, create entry on next line for the new date
-
-
-
-
 
 
 ### Time helper methods ###
@@ -155,8 +152,10 @@ async def p(ctx):
 def get_formatted_local_datetime():
     return datetime.now().strftime("%m/%d/%Y %H:%M:%S")
 
+
 def get_formatted_local_date():
     return datetime.now().strftime("%m/%d/%Y")
+
 
 def convert_to_datetime_object(date_str: str):
     return datetime.strptime(date_str, "%m/%d/%Y")
@@ -171,25 +170,31 @@ def convert_money_to_float(money_str: str) -> float:
 ### Google Sheets API helper methods ###
 
 def create_sheets_service():
-    credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_PATH, scopes=API_SCOPES)
+    credentials = service_account.Credentials.from_service_account_file(
+        SERVICE_ACCOUNT_PATH, scopes=API_SCOPES)
 
     service = build('sheets', 'v4', credentials=credentials)
 
     return service
 
+
 def read_sheet(service, range_name) -> list:
-    sheet = service.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID, range=range_name).execute()
+    sheet = service.spreadsheets().values().get(
+        spreadsheetId=SPREADSHEET_ID, range=range_name).execute()
     values = sheet.get('values', [])
     if not values:
         print('No data found.')
     return values
 
+
 def update_sheet(service, range_name: str, data: list) -> bool:
     body = {'values': data}
     try:
-        service.spreadsheets().values().update(spreadsheetId=SPREADSHEET_ID, range=range_name, valueInputOption="USER_ENTERED", body=body).execute()
+        service.spreadsheets().values().update(spreadsheetId=SPREADSHEET_ID,
+                                               range=range_name, valueInputOption="USER_ENTERED", body=body).execute()
         return True
     except:
         return False
+
 
 bot.run(BOT_TOKEN)
