@@ -1,12 +1,16 @@
+
 import os
+from datetime import datetime
+
+from dotenv import load_dotenv
+
 from discord.ext import commands
 import discord
-from dotenv import load_dotenv
+
 from PIL import Image
-import re
 import pytesseract
-import time
-from datetime import datetime
+import re
+
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 
@@ -57,44 +61,6 @@ async def status(ctx, *args):
 
 
 @bot.command()
-async def a(ctx):
-    sheets_service = create_sheets_service()
-
-    latest_row = read_sheet(service=sheets_service, range_name="B1:B1")
-
-    if not latest_row:
-        await ctx.send("There is no value for the latest row. Manually calculating the latest row...")
-        return
-        # manual calculation
-    else:
-        latest_row_int = int(latest_row[0][0])
-
-    latest_row_values = read_sheet(
-        service=sheets_service, range_name=f'B{latest_row_int}:E{latest_row_int}')
-
-    if not latest_row_values:
-        await ctx.send("There doesn't seem to be an entry for today's date. Creating new entry...")
-    else:
-        latest_row_date = latest_row_values[0][0]
-        todays_date = get_formatted_local_date()
-
-        latest_row_date_object = convert_to_datetime_object(latest_row_date)
-        todays_date_object = convert_to_datetime_object(todays_date)
-
-        if todays_date_object < latest_row_date_object:
-            await ctx.send("Somehow, today's date is before the latest entry date. The Sheet needs to be manually inspected.")
-            return
-
-        elif todays_date_object == latest_row_date_object:
-            await ctx.send("There is already an entry for today. The row will be overwritten with the updates values.")
-
-        else:
-            await ctx.send("There is no existing entry for today. A new row will be created.")
-
-            time.sleep(3)
-
-
-@bot.command()
 async def p(ctx):
     if not ctx.message.attachments:
         await ctx.send("Please include an image for me to parse.")
@@ -115,36 +81,60 @@ async def p(ctx):
 
         await ctx.send(f'Assets: ${str(assets)}\nLiabilities: ${str(liabilities)}\nNet Worth: ${str(round(assets + liabilities, 2))}')
 
-        sheets_service = create_sheets_service()
+        service = create_sheets_service()
 
-        latest_row = int(read_sheet(
-            service=sheets_service, range_name="B1:B1")[0][0])
+        latest_row = read_sheet(service=service, range_name="A2:A2")
 
-        latest_row_date = read_sheet(
-            service=sheets_service, range_name=f'B{latest_row}:E{latest_row}')
+        if not latest_row:
+            await ctx.send("There is no value for the latest row. Manually calculating the latest row...")
+            return
+            # manual calculation
+            # latest_row_int =
+        else:
+            latest_row_int = int(latest_row[0][0])
 
-        print(latest_row_date)
+        latest_row_values = read_sheet(
+            service=service, range_name=f'B{latest_row_int}:E{latest_row_int}')
 
-        # current_row = latest_row + 1
+        try:
+            latest_row_date = latest_row_values[0][0]
+        except IndexError:
+            await ctx.send("Discrepancy between latest row index and Sheet file. Fix is in progress.")
+            return
+        todays_date = get_formatted_local_date()
 
-        # if not update_sheet(service=sheets_service, range_name="B1:B1", data=[[str(current_row)]]):
-        #     await ctx.send("Could not update the row counter!")
-        #     return
+        latest_row_date_object = convert_to_datetime_object(latest_row_date)
+        todays_date_object = convert_to_datetime_object(todays_date)
 
-        # sheets_formatted_time = get_formatted_local_datetime()
+        if todays_date_object < latest_row_date_object:
+            await ctx.send("Somehow, today's date is before the latest entry date. The Sheet needs to be manually inspected.")
+            return
 
-        # info_list = [[sheets_formatted_time, str(assets), str(abs(liabilities)), str(round(assets + liabilities, 2))]]
-        # range_name = f'B{current_row}:E{current_row}'
+        elif todays_date_object == latest_row_date_object:
+            await ctx.send("There's already an entry for today. The row will be overwritten with the updated values.")
 
-        # if update_sheet(service=sheets_service, range_name=range_name, data=info_list):
-        #     await ctx.send("Google Sheets successfully updated.")
-        # else:
-        #     await ctx.send("Something went wrong while updating the Google Sheet!")
+            current_row_num = latest_row_int
 
-        # fetch latest row
-        # check to see if date is the same as today's date
-        # if it is, overwrite existing entry
-        # if not, create entry on next line for the new date
+        else:
+            await ctx.send("There's no existing entry for today. A new row will be created.")
+
+            current_row_num = latest_row_int + 1
+
+            if not update_sheet(service=service, range_name="A2:A2", data=[[str(current_row_num)]]):
+                await ctx.send("Could not update the row counter!")
+                return
+
+        sheets_formatted_date = get_formatted_local_date()
+
+        info_list = [[sheets_formatted_date, str(assets), str(
+            abs(liabilities)), str(round(assets + liabilities, 2))]]
+
+        range_name = f'B{current_row_num}:E{current_row_num}'
+
+        if update_sheet(service=service, range_name=range_name, data=info_list):
+            await ctx.send("Google Sheets successfully updated.")
+        else:
+            await ctx.send("Something went wrong while updating the Google Sheet!")
 
 
 ### Time helper methods ###
@@ -154,7 +144,9 @@ def get_formatted_local_datetime():
 
 
 def get_formatted_local_date():
-    return datetime.now().strftime("%m/%d/%Y")
+    now = datetime.now()
+
+    return f'{now.month}/{now.day}/{now.year}'
 
 
 def convert_to_datetime_object(date_str: str):
@@ -181,10 +173,8 @@ def create_sheets_service():
 def read_sheet(service, range_name) -> list:
     sheet = service.spreadsheets().values().get(
         spreadsheetId=SPREADSHEET_ID, range=range_name).execute()
-    values = sheet.get('values', [])
-    if not values:
-        print('No data found.')
-    return values
+
+    return sheet.get('values', [])
 
 
 def update_sheet(service, range_name: str, data: list) -> bool:
