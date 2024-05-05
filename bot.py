@@ -134,10 +134,23 @@ async def p(ctx):
 
         range_name = f'B{current_row_num}:E{current_row_num}'
 
-        if update_sheet(service, range_name, info_list):
-            await ctx.send("Google Sheets successfully updated.")
-        else:
+        if not update_sheet(service, range_name, info_list):
             await ctx.send("Something went wrong while updating the Google Sheet!")
+
+        await ctx.send("Google Sheets successfully updated.")
+
+        last_five_entries = read_sheet(
+            service, f'B{current_row_num - 4}:E{current_row_num}')
+
+        last_five_entries_str = "Here's the last 5 entries for net worth: \n"
+
+        for entry in last_five_entries:
+            date = entry[0]
+            net_worth = entry[3]
+
+            last_five_entries_str += f'{date}: {net_worth}\n'
+
+        await ctx.send(last_five_entries_str)
 
 
 ### String formatting helper methods ###
