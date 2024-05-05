@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 
 from discord.ext import commands
+from discord.ui import Button, View
 import discord
 
 from PIL import Image
@@ -55,6 +56,52 @@ async def status(ctx, *args):
             await ctx.send("The local time is " + get_formatted_local_datetime() + " (EST).")
     else:
         await ctx.send("Please specify a type of status.")
+
+
+class DatePickerView(View):
+    def __init__(self):
+        super().__init__()
+
+    @discord.ui.button(label="Select Date Range", style=discord.ButtonStyle.primary, custom_id="select_date_range")
+    async def select_date_range(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.clear_items()
+        self.add_month_buttons(interaction)
+        await interaction.response.edit_message(content="Please select a month:", view=self)
+
+    @discord.ui.button(label="Type Date Range", style=discord.ButtonStyle.primary, custom_id="type_date_range")
+    async def type_date_range(self, interaction: discord.Interaction, button: discord.ui.Button):
+        button.disabled = True
+        await interaction.response.edit_message(content="Please enter the date range in the format `MM-DD-YYYY to MM-DD-YYYY`:", view=None)
+
+    def add_month_buttons(self, interaction):
+        for month in range(1, 13):
+            month_button = Button(
+                label=f"Month {month}", style=discord.ButtonStyle.secondary, custom_id=f"month_{month}")
+            month_button.callback = self.month_button_callback
+            self.add_item(month_button)
+
+    async def month_button_callback(self, interaction: discord.Interaction, button: discord.ui.Button):
+        print("we entered the month button callback")
+        self.clear_items()
+        self.add_day_buttons(self, interaction, int(button.label.split()[1]))
+        await interaction.response.edit_message(content=f"Please select a day in {button.label}:", view=self)
+
+    def add_day_buttons(self, interaction, month):
+        for day in range(1, 31):
+            day_button = Button(
+                label=f"Day {day}", style=discord.ButtonStyle.secondary, custom_id=f"day_{day}")
+            day_button.callback = self.day_button_callback  # Assigning the callback function
+            self.add_item(day_button)
+
+    async def day_button_callback(self, interaction: discord.Interaction, button: discord.ui.Button):
+        # Placeholder: Handle day selection
+        await interaction.response.send_message(f"You have selected {button.label}.", ephemeral=True)
+
+
+@bot.command()
+async def d(ctx):
+    view = DatePickerView()
+    await ctx.send("Click the button to enter a date range.", view=view)
 
 
 @bot.command()
