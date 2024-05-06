@@ -1,4 +1,7 @@
 import os
+import calendar
+import math
+import asyncio
 
 from dotenv import load_dotenv
 
@@ -58,50 +61,148 @@ async def status(ctx, *args):
         await ctx.send("Please specify a type of status.")
 
 
-class DatePickerView(View):
-    def __init__(self):
+class DateOptionsView(View):
+    def __init__(self, future: asyncio.Future[str]):
         super().__init__()
+        self.future: asyncio.Future[str] = future
 
     @discord.ui.button(label="Select Date Range", style=discord.ButtonStyle.primary, custom_id="select_date_range")
     async def select_date_range(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.clear_items()
-        self.add_month_buttons(interaction)
-        await interaction.response.edit_message(content="Please select a month:", view=self)
+        self.stop()
+
+        if not self.future.done():
+            self.future.set_result("Select Date Range")
 
     @discord.ui.button(label="Type Date Range", style=discord.ButtonStyle.primary, custom_id="type_date_range")
     async def type_date_range(self, interaction: discord.Interaction, button: discord.ui.Button):
-        button.disabled = True
-        await interaction.response.edit_message(content="Please enter the date range in the format `MM-DD-YYYY to MM-DD-YYYY`:", view=None)
-
-    def add_month_buttons(self, interaction):
-        for month in range(1, 13):
-            month_button = Button(
-                label=f"Month {month}", style=discord.ButtonStyle.secondary, custom_id=f"month_{month}")
-            month_button.callback = self.month_button_callback
-            self.add_item(month_button)
-
-    async def month_button_callback(self, interaction: discord.Interaction, button: discord.ui.Button):
-        print("we entered the month button callback")
         self.clear_items()
-        self.add_day_buttons(self, interaction, int(button.label.split()[1]))
-        await interaction.response.edit_message(content=f"Please select a day in {button.label}:", view=self)
+        self.stop()
 
-    def add_day_buttons(self, interaction, month):
-        for day in range(1, 31):
+        if not self.future.done():
+            self.future.set_result("Type Date Range")
+
+
+class DatePickerView(View):
+    def __init__(self, future: asyncio.Future[str]):
+        super().__init__()
+        self.selected_year: str = ""
+        self.selected_month: str = ""
+        self.selected_day: str = ""
+        # self.starting: bool = starting
+        # self.ending: bool = ending
+        self.future: asyncio.Future[str] = future
+
+        self.add_year_buttons()
+
+    def add_year_buttons(self):
+        for year in range(2024, 2030, 1):
+            year = str(year)
+            year_button = Button(
+                label=year, style=discord.ButtonStyle.secondary, custom_id=f"year_{year}")
+            year_button.callback = lambda interaction, year=year: self.year_button_callback(
+                interaction, year)
+            self.add_item(year_button)
+
+    async def year_button_callback(self, interaction: discord.Interaction, year: str):
+        self.selected_year = year
+        self.clear_items()
+        self.add_month_buttons()
+        await interaction.response.edit_message(content=f"Please select a month in {year}:", view=self)
+
+    def add_month_buttons(self):
+        i = 0
+        for month in calendar.month_name[1:]:
+            month_button = Button(
+                label=month, row=math.floor(i/3), style=discord.ButtonStyle.secondary, custom_id=f"month_{month}")
+            month_button.callback = lambda interaction, month=month: self.month_button_callback(
+                interaction, month)
+            self.add_item(month_button)
+            i += 1
+
+    async def month_button_callback(self, interaction: discord.Interaction, month: str):
+        self.selected_month = month
+        self.clear_items()
+        self.add_day_buttons(month)
+        await interaction.response.edit_message(content=f"Please select a day in {month} {self.selected_year}:", view=self)
+
+    def add_day_buttons(self, month):
+        for day in range(1, 26):
             day_button = Button(
-                label=f"Day {day}", style=discord.ButtonStyle.secondary, custom_id=f"day_{day}")
-            day_button.callback = self.day_button_callback  # Assigning the callback function
+                label=day, style=discord.ButtonStyle.secondary, custom_id=f"day_{day}")
+            day_button.callback = lambda interaction, day=day: self.day_button_callback(
+                interaction, day)
             self.add_item(day_button)
 
-    async def day_button_callback(self, interaction: discord.Interaction, button: discord.ui.Button):
-        # Placeholder: Handle day selection
-        await interaction.response.send_message(f"You have selected {button.label}.", ephemeral=True)
+    async def day_button_callback(self, interaction: discord.Interaction, day: str):
+        self.stop()
+
+        self.selected_day = day
+
+        if not self.future.done():
+            self.future.set_result(
+                f'{self.selected_month} {self.selected_day}, {self.selected_year}')
+
+    def disable_all_buttons(self):
+        for item in self.children:
+            if isinstance(item, Button):
+                item.disabled = True  # Disable the button
 
 
 @bot.command()
 async def d(ctx):
-    view = DatePickerView()
-    await ctx.send("Click the button to enter a date range.", view=view)
+    date_option_future = asyncio.Future()
+
+    date_option_view = DateOptionsView(date_option_future)
+    date_choice_message = await ctx.send("Please choose whether you prefer to select or type the date.", view=date_option_view)
+
+    try:
+        date_choice = await asyncio.wait_for(date_option_future, timeout=120.0)
+        await date_choice_message.delete()
+    except asyncio.TimeoutError:
+        await ctx.send("You didn't complete the date option selection within 120 seconds.")
+        return
+
+    if date_choice == 'Select Date Range':
+
+        start_date_future = asyncio.Future()
+
+        start_date_picker_view = DatePickerView(start_date_future)
+
+        starting_date_message = await ctx.send("Starting date: ")
+        ending_date_message = await ctx.send("Ending date: ")
+        start_date_message = await ctx.send("Select a year for the starting date: ", view=start_date_picker_view)
+
+        try:
+            selected_date = await asyncio.wait_for(start_date_future, timeout=120.0)
+            await starting_date_message.edit(content=f'Starting date: {selected_date}')
+
+        except asyncio.TimeoutError:
+            await ctx.send("You didn't complete the date selection within 120 seconds.")
+
+        await start_date_message.delete()
+
+        # End Date
+
+        end_date_future = asyncio.Future()
+
+        end_date_picker_view = DatePickerView(end_date_future)
+
+        end_date_message = await ctx.send("Select a year for the ending date: ", view=end_date_picker_view)
+
+        try:
+            selected_date = await asyncio.wait_for(end_date_future, timeout=120.0)
+            await ending_date_message.edit(content=f'Ending date: {selected_date}')
+
+        except asyncio.TimeoutError:
+            await ctx.send("You didn't complete the date selection within 120 seconds.")
+
+        await end_date_message.delete()
+
+    elif date_choice == 'Type Date Range':
+        await ctx.send("You selected Type Date Range")
+    else:
+        await ctx.send("something went wrong...")
 
 
 @bot.command()
