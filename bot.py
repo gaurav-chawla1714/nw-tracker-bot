@@ -85,7 +85,7 @@ class DateOptionsView(View):
 
 
 class DatePickerView(View):
-    def __init__(self, future: asyncio.Future[str], is_starting: bool, is_ending: bool):
+    def __init__(self, future: asyncio.Future[str], is_starting: bool, is_ending: bool, user_selected_start_date: date = None):
         super().__init__()
         self.selected_year: str = ""
         self.selected_month: str = ""
@@ -141,10 +141,16 @@ class DatePickerView(View):
     async def month_button_callback(self, interaction: discord.Interaction, month: str):
         self.selected_month = month
         self.clear_items()
-        self.add_day_buttons(month)
+        self.add_day_buttons()
         await interaction.response.edit_message(content=f"Please select a day in {month} {self.selected_year}:", view=self)
 
-    def add_day_buttons(self, month):
+    def add_day_buttons(self):
+        month = self.selected_month  # str representation
+
+        # convert month into its int
+        # calendar module -> how many days in month
+        # beginning restriction if feb 2024
+        # end restriction if same as end month/year
         for day in range(1, 26):
             day_button = Button(
                 label=day, style=discord.ButtonStyle.secondary, custom_id=f"day_{day}")
@@ -193,11 +199,12 @@ async def d(ctx):
         start_date_message = await ctx.send("Select a year for the starting date: ", view=start_date_picker_view)
 
         try:
-            selected_date = await asyncio.wait_for(start_date_future, timeout=120.0)
+            selected_date = await asyncio.wait_for(start_date_future, timeout=10.0)
             await starting_date_message.edit(content=f'Starting date: {selected_date}')
 
         except asyncio.TimeoutError:
             await ctx.send("You didn't complete the date selection within 120 seconds.")
+            start_date_picker_view.disable_all_buttons()
             return
 
         await start_date_message.delete()
@@ -212,11 +219,12 @@ async def d(ctx):
         end_date_message = await ctx.send("Select a year for the ending date: ", view=end_date_picker_view)
 
         try:
-            selected_date = await asyncio.wait_for(end_date_future, timeout=120.0)
+            selected_date = await asyncio.wait_for(end_date_future, timeout=10.0)
             await ending_date_message.edit(content=f'Ending date: {selected_date}')
 
         except asyncio.TimeoutError:
             await ctx.send("You didn't complete the date selection within 120 seconds.")
+            end_date_picker_view.disable_all_buttons()
             return
 
         await end_date_message.delete()
