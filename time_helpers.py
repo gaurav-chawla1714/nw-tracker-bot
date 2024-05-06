@@ -1,5 +1,7 @@
 ### Time helper methods ###
-from datetime import datetime
+from datetime import datetime, date
+
+DATA_START_DATE = date(2024, 2, 17)
 
 
 def get_formatted_local_datetime():

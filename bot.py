@@ -2,6 +2,7 @@ import os
 import calendar
 import math
 import asyncio
+from datetime import date
 
 from dotenv import load_dotenv
 
@@ -84,19 +85,24 @@ class DateOptionsView(View):
 
 
 class DatePickerView(View):
-    def __init__(self, future: asyncio.Future[str]):
+    def __init__(self, future: asyncio.Future[str], is_starting: bool, is_ending: bool):
         super().__init__()
         self.selected_year: str = ""
         self.selected_month: str = ""
         self.selected_day: str = ""
-        # self.starting: bool = starting
-        # self.ending: bool = ending
+
+        self.starting_date: date = DATA_START_DATE
+        self.ending_date: date = date.today()
+
+        self.is_starting: bool = is_starting
+        self.is_ending: bool = is_ending
+
         self.future: asyncio.Future[str] = future
 
         self.add_year_buttons()
 
     def add_year_buttons(self):
-        for year in range(2024, 2030, 1):
+        for year in range(2024, self.ending_date.year + 1):
             year = str(year)
             year_button = Button(
                 label=year, style=discord.ButtonStyle.secondary, custom_id=f"year_{year}")
@@ -112,7 +118,19 @@ class DatePickerView(View):
 
     def add_month_buttons(self):
         i = 0
-        for month in calendar.month_name[1:]:
+        eligible_months = calendar.month_name[1:]
+
+        if self.is_starting:
+            if int(self.selected_year) == self.starting_date.year:  # restriction on beginning months
+                eligible_months = eligible_months[1:]  # February onwards
+
+            if int(self.selected_year) == self.ending_date.year:  # restriction on ending months
+                end_index = eligible_months.index(
+                    calendar.month_name[self.ending_date.month])
+
+                eligible_months = eligible_months[0:end_index + 1]
+
+        for month in eligible_months:
             month_button = Button(
                 label=month, row=math.floor(i/3), style=discord.ButtonStyle.secondary, custom_id=f"month_{month}")
             month_button.callback = lambda interaction, month=month: self.month_button_callback(
@@ -167,7 +185,8 @@ async def d(ctx):
 
         start_date_future = asyncio.Future()
 
-        start_date_picker_view = DatePickerView(start_date_future)
+        start_date_picker_view = DatePickerView(
+            future=start_date_future, is_starting=True, is_ending=False)
 
         starting_date_message = await ctx.send("Starting date: ")
         ending_date_message = await ctx.send("Ending date: ")
@@ -179,6 +198,7 @@ async def d(ctx):
 
         except asyncio.TimeoutError:
             await ctx.send("You didn't complete the date selection within 120 seconds.")
+            return
 
         await start_date_message.delete()
 
@@ -186,7 +206,8 @@ async def d(ctx):
 
         end_date_future = asyncio.Future()
 
-        end_date_picker_view = DatePickerView(end_date_future)
+        end_date_picker_view = DatePickerView(
+            future=end_date_future, is_starting=False, is_ending=True)
 
         end_date_message = await ctx.send("Select a year for the ending date: ", view=end_date_picker_view)
 
@@ -196,6 +217,7 @@ async def d(ctx):
 
         except asyncio.TimeoutError:
             await ctx.send("You didn't complete the date selection within 120 seconds.")
+            return
 
         await end_date_message.delete()
 
