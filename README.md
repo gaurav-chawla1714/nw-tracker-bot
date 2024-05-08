@@ -1,12 +1,12 @@
 # nw-tracker-bot
 
-nw tracker bot
+# NW Tracker Bot
 
-upcoming fixes:
+## Upcoming fixes:
 
 - Liabilities is a negative number which messes with formatting
 
-Backlog:
+## Backlog:
 
 - asyncio.TimeoutError does not properly disable buttons
 - start date day restrictions need to be implemented
