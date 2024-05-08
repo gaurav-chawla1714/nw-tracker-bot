@@ -2,6 +2,7 @@ import os
 import calendar
 import math
 import asyncio
+
 from datetime import date
 
 from dotenv import load_dotenv
@@ -13,6 +14,8 @@ import discord
 from PIL import Image
 import pytesseract
 import re
+
+from table2ascii import table2ascii as t2a, PresetStyle
 
 from sheets_helpers import *
 from time_helpers import *
@@ -85,8 +88,10 @@ class DateOptionsView(View):
 
 
 class DatePickerView(View):
-    def __init__(self, future: asyncio.Future[str], is_starting: bool, is_ending: bool, user_selected_start_date: date = None):
+    def __init__(self, message, future: asyncio.Future[str], is_starting: bool, is_ending: bool, user_selected_start_date: date = None):
         super().__init__()
+        self.message = message
+
         self.selected_year: str = ""
         self.selected_month: str = ""
         self.selected_day: str = ""
@@ -114,7 +119,7 @@ class DatePickerView(View):
         self.selected_year = year
         self.clear_items()
         self.add_month_buttons()
-        await interaction.response.edit_message(content=f"Please select a month in {year}:", view=self)
+        await self.message.edit_message(content=f"Please select a month in {year}:", view=self)
 
     def add_month_buttons(self):
         i = 0
@@ -145,13 +150,27 @@ class DatePickerView(View):
         await interaction.response.edit_message(content=f"Please select a day in {month} {self.selected_year}:", view=self)
 
     def add_day_buttons(self):
+
+        start_day = 1
         month = self.selected_month  # str representation
+
+        month_num = calendar.month_name[:].index(month)
+
+        if int(self.selected_year) == DATA_START_DATE.year and month_num == DATA_START_DATE.month:
+            start_day = DATA_START_DATE.day
+
+        _, num_days_in_month = calendar.monthrange(
+            int(self.selected_year), month_num)
+
+        print(num_days_in_month)
+
+        print(month_num)
 
         # convert month into its int
         # calendar module -> how many days in month
         # beginning restriction if feb 2024
         # end restriction if same as end month/year
-        for day in range(1, 26):
+        for day in range(start_day, 26):
             day_button = Button(
                 label=day, style=discord.ButtonStyle.secondary, custom_id=f"day_{day}")
             day_button.callback = lambda interaction, day=day: self.day_button_callback(
@@ -172,6 +191,9 @@ class DatePickerView(View):
             if isinstance(item, Button):
                 item.disabled = True  # Disable the button
 
+    async def add_reactions(self):
+        await self.message.add_reaction("◀️")
+
 
 @bot.command()
 async def d(ctx):
@@ -191,15 +213,15 @@ async def d(ctx):
 
         start_date_future = asyncio.Future()
 
-        start_date_picker_view = DatePickerView(
-            future=start_date_future, is_starting=True, is_ending=False)
-
         starting_date_message = await ctx.send("Starting date: ")
         ending_date_message = await ctx.send("Ending date: ")
-        start_date_message = await ctx.send("Select a year for the starting date: ", view=start_date_picker_view)
+
+        start_date_message = await ctx.send("Select a year for the starting date: ")
+        start_date_picker_view = DatePickerView(message=start_date_message,
+                                                future=start_date_future, is_starting=True, is_ending=False)
 
         try:
-            selected_date = await asyncio.wait_for(start_date_future, timeout=10.0)
+            selected_date = await asyncio.wait_for(start_date_future, timeout=120.0)
             await starting_date_message.edit(content=f'Starting date: {selected_date}')
 
         except asyncio.TimeoutError:
@@ -219,7 +241,7 @@ async def d(ctx):
         end_date_message = await ctx.send("Select a year for the ending date: ", view=end_date_picker_view)
 
         try:
-            selected_date = await asyncio.wait_for(end_date_future, timeout=10.0)
+            selected_date = await asyncio.wait_for(end_date_future, timeout=120.0)
             await ending_date_message.edit(content=f'Ending date: {selected_date}')
 
         except asyncio.TimeoutError:
@@ -320,15 +342,18 @@ async def p(ctx):
         last_five_entries = read_sheet(
             service, f'B{current_row_num - 4}:E{current_row_num}')
 
-        last_five_entries_str = "Here's the last 5 entries for net worth: \n"
+        await ctx.send("Here's the last 5 entries for net worth:")
 
-        for entry in last_five_entries:
-            date = entry[0]
-            net_worth = entry[3]
+        selected_output = [[entry[0], entry[3]] for entry in last_five_entries]
 
-            last_five_entries_str += f'{date}: {net_worth}\n'
+        table = t2a(
+            header=["Date", "Net Worth"],
+            body=selected_output,
+            first_col_heading=True,
+            style=PresetStyle.thin_compact
+        )
 
-        await ctx.send(last_five_entries_str)
+        await ctx.send(f'```\n{table}\n```')
 
 
 ### String formatting helper methods ###
