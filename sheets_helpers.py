@@ -1,9 +1,12 @@
 ### Google Sheets API helper methods ###
 import os
+from typing import List
 from dotenv import load_dotenv
 
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+
+import custom_exceptions
 
 load_dotenv()
 
@@ -21,14 +24,14 @@ def create_sheets_service():
     return service
 
 
-def read_sheet(service, range_name) -> list:
+def read_sheet(service, range_name) -> List[List[str]]:
     sheet = service.spreadsheets().values().get(
         spreadsheetId=SPREADSHEET_ID, range=range_name).execute()
 
     return sheet.get('values', [])
 
 
-def update_sheet(service, range_name: str, data: list) -> bool:
+def update_sheet(service, range_name: str, data: List[List[str]]) -> bool:
     body = {'values': data}
     try:
         service.spreadsheets().values().update(spreadsheetId=SPREADSHEET_ID,
@@ -36,3 +39,27 @@ def update_sheet(service, range_name: str, data: list) -> bool:
         return True
     except:
         return False
+
+
+def retrieve_latest_row_int(service) -> int:
+    latest_row = read_sheet(service, "A2:A2")
+
+    if not latest_row:
+        values = read_sheet(service, 'B4:E')
+
+        latest_row_int = len(values) + 3
+
+        if not update_sheet(service, 'A2:A2', [[str(latest_row_int)]]):
+            raise custom_exceptions.GoogleSheetException
+
+    else:
+        latest_row_int = int(latest_row[0][0])
+
+    return latest_row_int
+
+
+def get_number_of_entries(service) -> int:
+
+    values = read_sheet(service, 'B4:E')
+
+    return len(values)

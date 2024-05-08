@@ -280,21 +280,11 @@ async def p(ctx):
 
         service = create_sheets_service()
 
-        latest_row = read_sheet(service, "A2:A2")
-
-        if not latest_row:
-            await ctx.send("There is no value for the latest row number. Manually calculating which row the latest entry is in.")
-
-            values = read_sheet(service, 'B4:E')
-
-            latest_row_int = len(values) + 3
-
-            if not update_sheet(service, 'A2:A2', [[str(latest_row_int)]]):
-                await ctx.send("Something went wrong while updating the Google Sheet with the latest row number.")
-                return
-
-        else:
-            latest_row_int = int(latest_row[0][0])
+        try:
+            latest_row_int = retrieve_latest_row_int(service)
+        except custom_exceptions.GoogleSheetException:
+            await ctx.send("Something went wrong while updating the Google Sheet with the latest row number.")
+            return
 
         latest_row_values = read_sheet(
             service, f'B{latest_row_int}:E{latest_row_int}')
@@ -356,7 +346,17 @@ async def p(ctx):
         await ctx.send(f'```\n{table}\n```')
 
 
-### String formatting helper methods ###
+@bot.command()
+async def prev(ctx, *args):
+    num_entries = get_number_of_entries()
+    prev_entries = 5  # default, if no args are passed in
+    if args:
+        if type(args[0]) == int and args[0] <= num_entries:
+            print("hello")
+
+
+## String formatting helper methods ###
+
 
 def convert_money_to_float(money_str: str) -> float:
     return float(money_str.replace('$', '').replace(',', ''))
