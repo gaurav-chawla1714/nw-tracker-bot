@@ -1,6 +1,6 @@
-# nw-tracker-bot
+## Upcoming Features:
 
-# NW Tracker Bot
+- Separate command to find previous x entries
 
 ## Upcoming fixes:
 
