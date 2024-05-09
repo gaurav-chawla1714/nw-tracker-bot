@@ -3,8 +3,6 @@ import calendar
 import math
 import asyncio
 
-from datetime import date
-
 from dotenv import load_dotenv
 
 from discord.ext import commands
@@ -281,7 +279,7 @@ async def p(ctx):
         service = create_sheets_service()
 
         try:
-            latest_row_int = retrieve_latest_row_int(service)
+            latest_row_int = get_latest_row_int(service)
         except custom_exceptions.GoogleSheetException:
             await ctx.send("Something went wrong while updating the Google Sheet with the latest row number.")
             return
@@ -348,11 +346,36 @@ async def p(ctx):
 
 @bot.command()
 async def prev(ctx, *args):
-    num_entries = get_number_of_entries()
+    service = create_sheets_service()
+    num_entries = get_number_of_entries(service)
     prev_entries = 5  # default, if no args are passed in
+
     if args:
-        if type(args[0]) == int and args[0] <= num_entries:
-            print("hello")
+        try:
+            if args[0] == "all":
+                prev_entries = num_entries
+            elif int(args[0]) <= num_entries:
+                await ctx.send("Custom int argument detected!")
+                prev_entries = int(args[0])
+
+        except ValueError:
+            await ctx.send("Argument is not a valid integer. Defaulting to the previous 5 entries.")
+
+    latest_row_int = get_latest_row_int(service)
+
+    entries = read_sheet(
+        service, f'B{latest_row_int - prev_entries + 1}:E{latest_row_int}')
+
+    selected_output = [[entry[0], entry[3]] for entry in entries]
+
+    table = t2a(
+        header=["Date", "Net Worth"],
+        body=selected_output,
+        first_col_heading=True,
+        style=PresetStyle.thin_compact
+    )
+
+    await ctx.send(f'```\n{table}\n```')
 
 
 ## String formatting helper methods ###

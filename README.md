@@ -1,6 +1,6 @@
 ## Upcoming Features:
 
-- Separate command to find previous x entries (in progress)
+- Date picking functionality
 
 ## Upcoming fixes:
 

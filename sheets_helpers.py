@@ -4,7 +4,7 @@ from typing import List
 from dotenv import load_dotenv
 
 from google.oauth2 import service_account
-from googleapiclient.discovery import build
+from googleapiclient.discovery import build, Resource
 
 import custom_exceptions
 
@@ -15,7 +15,7 @@ SERVICE_ACCOUNT_PATH = os.getenv("SERVICE_ACCOUNT_PATH")
 SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
 
 
-def create_sheets_service():
+def create_sheets_service() -> Resource:
     credentials = service_account.Credentials.from_service_account_file(
         SERVICE_ACCOUNT_PATH, scopes=API_SCOPES)
 
@@ -24,14 +24,14 @@ def create_sheets_service():
     return service
 
 
-def read_sheet(service, range_name) -> List[List[str]]:
+def read_sheet(service: Resource, range_name: str) -> List[List[str]]:
     sheet = service.spreadsheets().values().get(
         spreadsheetId=SPREADSHEET_ID, range=range_name).execute()
 
     return sheet.get('values', [])
 
 
-def update_sheet(service, range_name: str, data: List[List[str]]) -> bool:
+def update_sheet(service: Resource, range_name: str, data: List[List[str]]) -> bool:
     body = {'values': data}
     try:
         service.spreadsheets().values().update(spreadsheetId=SPREADSHEET_ID,
@@ -41,7 +41,7 @@ def update_sheet(service, range_name: str, data: List[List[str]]) -> bool:
         return False
 
 
-def retrieve_latest_row_int(service) -> int:
+def get_latest_row_int(service: Resource) -> int:
     latest_row = read_sheet(service, "A2:A2")
 
     if not latest_row:
@@ -58,7 +58,7 @@ def retrieve_latest_row_int(service) -> int:
     return latest_row_int
 
 
-def get_number_of_entries(service) -> int:
+def get_number_of_entries(service: Resource) -> int:
 
     values = read_sheet(service, 'B4:E')
 
