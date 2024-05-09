@@ -285,7 +285,7 @@ async def p(ctx):
             return
 
         latest_row_values = read_sheet(
-            service, f'B{latest_row_int}:E{latest_row_int}')
+            f'B{latest_row_int}:E{latest_row_int}', service)
 
         try:
             latest_row_date = latest_row_values[0][0]
@@ -311,7 +311,7 @@ async def p(ctx):
 
             current_row_num = latest_row_int + 1
 
-            if not update_sheet(service, "A2:A2", [[str(current_row_num)]]):
+            if not update_sheet("A2:A2", [[str(current_row_num)]], service):
                 await ctx.send("Could not update the row counter!")
                 return
 
@@ -322,13 +322,13 @@ async def p(ctx):
 
         range_name = f'B{current_row_num}:E{current_row_num}'
 
-        if not update_sheet(service, range_name, info_list):
+        if not update_sheet(range_name, info_list, service):
             await ctx.send("Something went wrong while updating the Google Sheet!")
 
         await ctx.send("Google Sheets successfully updated.")
 
         last_five_entries = read_sheet(
-            service, f'B{current_row_num - 4}:E{current_row_num}')
+            f'B{current_row_num - 4}:E{current_row_num}', service)
 
         await ctx.send("Here's the last 5 entries for net worth:")
 
@@ -364,7 +364,7 @@ async def prev(ctx, *args):
     latest_row_int = get_latest_row_int(service)
 
     entries = read_sheet(
-        service, f'B{latest_row_int - prev_entries + 1}:E{latest_row_int}')
+        f'B{latest_row_int - prev_entries + 1}:E{latest_row_int}', service)
 
     selected_output = [[entry[0], entry[3]] for entry in entries]
 

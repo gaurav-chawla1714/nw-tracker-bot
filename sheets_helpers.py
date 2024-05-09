@@ -24,14 +24,18 @@ def create_sheets_service() -> Resource:
     return service
 
 
-def read_sheet(service: Resource, range_name: str) -> List[List[str]]:
+def read_sheet(range_name: str, service: Resource = None) -> List[List[str]]:
     sheet = service.spreadsheets().values().get(
         spreadsheetId=SPREADSHEET_ID, range=range_name).execute()
 
     return sheet.get('values', [])
 
 
-def update_sheet(service: Resource, range_name: str, data: List[List[str]]) -> bool:
+def update_sheet(range_name: str, data: List[List[str]], service: Resource = None) -> bool:
+
+    if not service:
+        service = create_sheets_service()
+
     body = {'values': data}
     try:
         service.spreadsheets().values().update(spreadsheetId=SPREADSHEET_ID,
@@ -41,15 +45,19 @@ def update_sheet(service: Resource, range_name: str, data: List[List[str]]) -> b
         return False
 
 
-def get_latest_row_int(service: Resource) -> int:
-    latest_row = read_sheet(service, "A2:A2")
+def get_latest_row_int(service: Resource = None) -> int:
+
+    if not service:
+        service = create_sheets_service()
+
+    latest_row = read_sheet("A2:A2", service)
 
     if not latest_row:
-        values = read_sheet(service, 'B4:E')
+        values = read_sheet('B4:E', service)
 
         latest_row_int = len(values) + 3
 
-        if not update_sheet(service, 'A2:A2', [[str(latest_row_int)]]):
+        if not update_sheet('A2:A2', [[str(latest_row_int)]], service):
             raise custom_exceptions.GoogleSheetException
 
     else:
@@ -58,9 +66,9 @@ def get_latest_row_int(service: Resource) -> int:
     return latest_row_int
 
 
-def get_number_of_entries(service: Resource) -> int:
+def get_number_of_entries(service: Resource = None) -> int:
     """
-    Returns the total number of data entries in the Sheet (1 row/date = 1 entry).
+    Returns the total number of data entries in the Sheet (1 row/date = 1 entry). Creates own Sheets service if not passed in.
 
     Args:
         service (Resource): Google Resource to interact with the Google Sheets API.
@@ -69,6 +77,9 @@ def get_number_of_entries(service: Resource) -> int:
         int: The total number of data entries in the Sheet.
     """
 
-    values = read_sheet(service, 'B4:E')
+    if not service:
+        service = create_sheets_service()
+
+    values = read_sheet('B4:E', service)
 
     return len(values)
