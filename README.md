@@ -7,6 +7,7 @@
 ## Upcoming Features:
 
 - Yahoo Finance API Integration
+- Updated help command to list out all of the existing commands
 - Date picking functionality
 
 ## Upcoming fixes:

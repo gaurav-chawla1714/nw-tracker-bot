@@ -363,6 +363,10 @@ async def prev(ctx, *args):
 
     await ctx.send(f'```\n{table}\n```')
 
+@bot.command()
+async def holdings(ctx):
+    
+
 
 ## String formatting helper methods ###
 
