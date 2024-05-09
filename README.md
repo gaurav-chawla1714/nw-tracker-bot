@@ -4,7 +4,7 @@
 
 ## Upcoming fixes:
 
-- Liabilities is a negative number which messes with formatting
+- N/A
 
 ## Backlog:
 

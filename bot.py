@@ -272,9 +272,10 @@ async def p(ctx):
         nw_list = matches[0].split(" ")
 
         assets = convert_money_to_float(nw_list[0])
-        liabilities = convert_money_to_float(nw_list[1])
+        # liabilities should be positive, for consistency (unlike screenshot)
+        liabilities = abs(convert_money_to_float(nw_list[1]))
 
-        await ctx.send(f'Assets: ${str(assets)}\nLiabilities: ${str(liabilities)}\nNet Worth: ${str(round(assets + liabilities, 2))}')
+        await ctx.send(f'Assets: {"${:,.2f}".format(assets)}\nLiabilities: {"${:,.2f}".format(liabilities)}\nNet Worth: {"${:,.2f}".format(round(assets - liabilities, 2))}')
 
         service = create_sheets_service()
 
@@ -318,30 +319,16 @@ async def p(ctx):
         sheets_formatted_date = get_formatted_local_date()
 
         info_list = [[sheets_formatted_date, str(assets), str(
-            abs(liabilities)), str(round(assets + liabilities, 2))]]
+            liabilities), str(round(assets - liabilities, 2))]]
 
         range_name = f'B{current_row_num}:E{current_row_num}'
 
         if not update_sheet(range_name, info_list, service):
             await ctx.send("Something went wrong while updating the Google Sheet!")
 
-        await ctx.send("Google Sheets successfully updated.")
+        await ctx.send("Google Sheets successfully updated. Here's the last 5 entries for net worth:")
 
-        last_five_entries = read_sheet(
-            f'B{current_row_num - 4}:E{current_row_num}', service)
-
-        await ctx.send("Here's the last 5 entries for net worth:")
-
-        selected_output = [[entry[0], entry[3]] for entry in last_five_entries]
-
-        table = t2a(
-            header=["Date", "Net Worth"],
-            body=selected_output,
-            first_col_heading=True,
-            style=PresetStyle.thin_compact
-        )
-
-        await ctx.send(f'```\n{table}\n```')
+        await prev(ctx, "5")  # displays last 5 entries
 
 
 @bot.command()
