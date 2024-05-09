@@ -355,7 +355,6 @@ async def prev(ctx, *args):
             if args[0] == "all":
                 prev_entries = num_entries
             elif int(args[0]) <= num_entries:
-                await ctx.send("Custom int argument detected!")
                 prev_entries = int(args[0])
 
         except ValueError:
