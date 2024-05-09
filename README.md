@@ -6,6 +6,7 @@
 
 ## Upcoming Features:
 
+- Yahoo Finance API Integration
 - Date picking functionality
 
 ## Upcoming fixes:
