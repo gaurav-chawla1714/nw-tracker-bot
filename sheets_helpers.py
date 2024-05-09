@@ -68,7 +68,7 @@ def get_latest_row_int(service: Resource = None) -> int:
 
 def get_number_of_entries(service: Resource = None) -> int:
     """
-    Returns the total number of data entries in the Sheet (1 row/date = 1 entry). Creates own Sheets service if not passed in.
+    Returns the total number of data entries in the Sheet (1 row/date = 1 entry). Creates own Sheets Resource if not passed in.
 
     Args:
         service (Resource): Google Resource to interact with the Google Sheets API.
