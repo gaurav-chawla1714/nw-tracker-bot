@@ -11,7 +11,7 @@
 
 ## Upcoming fixes:
 
-- N/A
+- Updating docstrings for existing methods
 
 ## Backlog:
 
