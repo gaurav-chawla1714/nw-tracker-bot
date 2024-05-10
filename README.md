@@ -18,7 +18,10 @@
 - Parse Fidelity account view xslx to update holdings manually
 
 ## Backlog:
-- Date picking functionality (on hold)
+- Date picking functionality
+    - start date day restrictions need to be implemented
+    - end date year, month, day restrictions need to be implemented
+    - once dates are collected, need to do actual queries
 
 # Bug Fixes
 
@@ -30,7 +33,5 @@
 - Updating docstrings for existing methods
 
 ## Backlog:
-
-- asyncio.TimeoutError does not properly disable buttons
-- start date day restrictions need to be implemented
-- end date year, month, day restrictions need to be implemented
+- Date picking functionality bugs
+    - asyncio.TimeoutError does not properly disable buttons
