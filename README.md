@@ -8,7 +8,7 @@
 ## In-Progress Features:
 
 - Yahoo Finance API Integration
-  -
+  - real-time pricing data for estimated real-time nw calculations.
 - Integrate Google Firestore NoSQL Database as primary database
   - Sheets to be secondary storage for mobile viewing. However, all internal calculations will be queried to the Firestore database for ease of use.
 
