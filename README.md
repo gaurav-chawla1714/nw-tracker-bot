@@ -12,7 +12,7 @@
   - All existing data needs to be migrated over.
 - Restrict use of Google Resources/Clients using Singleton pattern instead of making multiple copies for no reason.
   - ~~Firestore~~ ✅
-  - Google Sheets :white_large_square:
+  - Google Sheets
 
 ## Upcoming Features:
 - Yahoo Finance API Integration
