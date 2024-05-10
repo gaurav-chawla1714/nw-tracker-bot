@@ -280,16 +280,14 @@ async def p(ctx):
 
         await ctx.send(f'Assets: {"${:,.2f}".format(assets)}\nLiabilities: {"${:,.2f}".format(liabilities)}\nNet Worth: {"${:,.2f}".format(round(assets - liabilities, 2))}')
 
-        service = create_sheets_service()
-
         try:
-            latest_row_int = get_latest_row_int(service)
-        except custom_exceptions.GoogleSheetException:
+            latest_row_int = get_latest_row_int()
+        except GoogleSheetException:
             await ctx.send("Something went wrong while updating the Google Sheet with the latest row number.")
             return
 
         latest_row_values = read_sheet(
-            f'B{latest_row_int}:E{latest_row_int}', service)
+            f'B{latest_row_int}:E{latest_row_int}')
 
         try:
             latest_row_date = latest_row_values[0][0]
@@ -315,7 +313,7 @@ async def p(ctx):
 
             current_row_num = latest_row_int + 1
 
-            if not update_sheet("A2:A2", [[str(current_row_num)]], service):
+            if not update_sheet("A2:A2", [[str(current_row_num)]]):
                 await ctx.send("Could not update the row counter!")
                 return
 
@@ -326,7 +324,7 @@ async def p(ctx):
 
         range_name = f'B{current_row_num}:E{current_row_num}'
 
-        if not update_sheet(range_name, info_list, service):
+        if not update_sheet(range_name, info_list):
             await ctx.send("Something went wrong while updating the Google Sheet!")
 
         await ctx.send("Google Sheets successfully updated. Here's the last 5 entries for net worth:")
@@ -336,8 +334,7 @@ async def p(ctx):
 
 @bot.command()
 async def prev(ctx, *args):
-    service = create_sheets_service()
-    num_entries = get_number_of_entries(service)
+    num_entries = get_number_of_entries()
     prev_entries = 5  # default, if no args are passed in
 
     if args:
@@ -350,10 +347,10 @@ async def prev(ctx, *args):
         except ValueError:
             await ctx.send("Argument is not a valid integer. Defaulting to the previous 5 entries.")
 
-    latest_row_int = get_latest_row_int(service)
+    latest_row_int = get_latest_row_int()
 
     entries = read_sheet(
-        f'B{latest_row_int - prev_entries + 1}:E{latest_row_int}', service)
+        f'B{latest_row_int - prev_entries + 1}:E{latest_row_int}')
 
     selected_output = [[entry[0], entry[3]] for entry in entries]
 
@@ -397,7 +394,9 @@ async def holdings(ctx, *args):
 
 @bot.command()
 async def t(ctx):
-    await ctx.send(get_from_firestore('holdings-data', '05092024').to_dict())
+    await ctx.send(get_from_firestore('holdings-data', '05092024'))
+
+    print(type(get_from_firestore('holdings-data', '05092024')["VT"]))
 ## String formatting helper methods ###
 
 

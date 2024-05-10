@@ -11,7 +11,7 @@ load_dotenv()
 
 FIRESTORE_SERVICE_ACCOUNT_PATH = os.getenv("FIRESTORE_SERVICE_ACCOUNT_PATH")
 
-firestore_client = None
+firestore_client: FirestoreClient = None
 
 def create_firestore_client() -> FirestoreClient:
     global firestore_client

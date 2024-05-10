@@ -10,9 +10,6 @@
 - Integrate Google Firestore NoSQL Database as primary database
   - Sheets to be secondary storage for mobile viewing. However, all internal calculations will be queried to the Firestore database for ease of use.
   - All existing data needs to be migrated over.
-- Restrict use of Google Resources/Clients using Singleton pattern instead of making multiple copies for no reason.
-  - ~~Firestore~~ ✅
-  - Google Sheets
 
 ## Upcoming Features:
 - Yahoo Finance API Integration
@@ -22,6 +19,7 @@
 - Parse Fidelity account view xslx to update holdings. Use pandas to parse excel file.
 - Better names of files (utils?)
 - Integrate custom exceptions more, including messages. Integrate on read commands as well.
+- Custom indexes on Firestore database for date field, to allow for quick range calculation.
 
 ## Backlog:
 - Date picking functionality
@@ -41,3 +39,10 @@
 ## Backlog:
 - Date picking functionality bugs
     - asyncio.TimeoutError does not properly disable buttons
+
+
+
+# Recently Finished Features
+- Restrict use of Google Resources/Clients using Singleton pattern instead of making multiple copies for no reason.
+  - Firestore ✅
+  - Google Sheets ✅

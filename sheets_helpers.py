@@ -14,27 +14,34 @@ SHEETS_API_SCOPES = os.getenv("SHEETS_API_SCOPES").split()
 SHEETS_SERVICE_ACCOUNT_PATH = os.getenv("SHEETS_SERVICE_ACCOUNT_PATH")
 SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
 
+sheets_service: Resource = None
+
 
 def create_sheets_service() -> Resource:
-    credentials = service_account.Credentials.from_service_account_file(
-        SHEETS_SERVICE_ACCOUNT_PATH, scopes=SHEETS_API_SCOPES)
+    global sheets_service
 
-    service = build('sheets', 'v4', credentials=credentials)
+    if sheets_service is None:
 
-    return service
+        credentials = service_account.Credentials.from_service_account_file(
+            SHEETS_SERVICE_ACCOUNT_PATH, scopes=SHEETS_API_SCOPES)
+
+        sheets_service = build('sheets', 'v4', credentials=credentials)
+
+    return sheets_service
 
 
-def read_sheet(range_name: str, service: Resource = None) -> List[List[str]]:
+def read_sheet(range_name: str) -> List[List[str]]:
+
+    service = create_sheets_service()
+
     sheet = service.spreadsheets().values().get(
         spreadsheetId=SPREADSHEET_ID, range=range_name).execute()
 
     return sheet.get('values', [])
 
 
-def update_sheet(range_name: str, data: List[List[str]], service: Resource = None) -> bool:
-
-    if not service:
-        service = create_sheets_service()
+def update_sheet(range_name: str, data: List[List[str]]) -> bool:
+    service = create_sheets_service()
 
     body = {'values': data}
     try:
@@ -45,10 +52,8 @@ def update_sheet(range_name: str, data: List[List[str]], service: Resource = Non
         return False
 
 
-def get_latest_row_int(service: Resource = None) -> int:
-
-    if not service:
-        service = create_sheets_service()
+def get_latest_row_int() -> int:
+    service = create_sheets_service()
 
     latest_row = read_sheet("A2:A2", service)
 
@@ -66,7 +71,7 @@ def get_latest_row_int(service: Resource = None) -> int:
     return latest_row_int
 
 
-def get_number_of_entries(service: Resource = None) -> int:
+def get_number_of_entries() -> int:
     """
     Returns the total number of data entries in the Sheet (1 row/date = 1 entry). Creates own Sheets Resource if not passed in.
 
@@ -77,8 +82,7 @@ def get_number_of_entries(service: Resource = None) -> int:
         int: The total number of data entries in the Sheet.
     """
 
-    if not service:
-        service = create_sheets_service()
+    service = create_sheets_service()
 
     values = read_sheet('B4:E', service)
 
