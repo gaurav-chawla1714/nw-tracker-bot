@@ -18,7 +18,7 @@
 - Yahoo Finance API Integration
   - real-time pricing data for real-time estimated nw calculations.
 - Updated help command to list out all of the existing commands
-  - Right now, the only ones is status
+  - Right now, the only one is status
 - Parse Fidelity account view xslx to update holdings. Use pandas to parse excel file.
 - Better names of files (utils?)
 - Integrate custom exceptions more, including messages. Integrate on read commands as well.
