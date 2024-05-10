@@ -5,9 +5,10 @@
 
 
 ## Upcoming Features:
-
-- Yahoo Finance API Integration
-- Date picking functionality
+- Yahoo Finance API Integration (in progress)
+- Updated help command to list out all of the existing commands
+- parse Fidelity account view xslx to update holdings
+- Date picking functionality (on hold)
 
 ## Upcoming fixes:
 

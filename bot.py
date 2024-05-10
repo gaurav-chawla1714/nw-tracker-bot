@@ -364,6 +364,7 @@ async def prev(ctx, *args):
     await ctx.send(f'```\n{table}\n```')
 
 
+
 @bot.command()
 async def holdings(ctx, *args):
     ALL_HOLDINGS = ["VT", "VTI", "VXUS", "VINIX", "VMCIX", "VSCIX", "VTSNX", "VUSXX", "SPAXX"]
@@ -389,9 +390,6 @@ async def holdings(ctx, *args):
     
 
     await ctx.send(args_list)
-
-            
-
 
 ## String formatting helper methods ###
 
