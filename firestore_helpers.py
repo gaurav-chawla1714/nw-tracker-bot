@@ -5,6 +5,8 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud.firestore import Client as FirestoreClient
 
+from custom_exceptions import FirestoreException
+
 load_dotenv()
 
 FIRESTORE_SERVICE_ACCOUNT_PATH = os.getenv("FIRESTORE_SERVICE_ACCOUNT_PATH")
@@ -37,7 +39,10 @@ def firestore_test():
 def get_from_firestore(collection: str, document: str):
     db_client = create_firestore_client()
 
-    return db_client.collection(collection).document(document).get().to_dict()
+    try:
+        return db_client.collection(collection).document(document).get().to_dict()
+    except:
+        raise FirestoreException
 
     # Add custom exception
 

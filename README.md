@@ -18,6 +18,7 @@
 - Updated help command to list out all of the existing commands
 - Parse Fidelity account view xslx to update holdings manually
 - Better names of files
+- Integrate custom exceptions more, including messages. Integrate on read commands as well.
 
 ## Backlog:
 - Date picking functionality

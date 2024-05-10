@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from google.oauth2 import service_account
 from googleapiclient.discovery import build, Resource
 
-import custom_exceptions
+from custom_exceptions import GoogleSheetException
 
 load_dotenv()
 
@@ -58,7 +58,7 @@ def get_latest_row_int(service: Resource = None) -> int:
         latest_row_int = len(values) + 3
 
         if not update_sheet('A2:A2', [[str(latest_row_int)]], service):
-            raise custom_exceptions.GoogleSheetException
+            raise GoogleSheetException
 
     else:
         latest_row_int = int(latest_row[0][0])
