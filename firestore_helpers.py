@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 
+import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud.firestore import Client as FirestoreClient
 
@@ -8,11 +9,20 @@ load_dotenv()
 
 FIRESTORE_SERVICE_ACCOUNT_PATH = os.getenv("FIRESTORE_SERVICE_ACCOUNT_PATH")
 
-def create_firestore_client() -> FirestoreClient:
-    firebase_credentials = credentials.Certificate(FIRESTORE_SERVICE_ACCOUNT_PATH)
-    firebase_admin.initialize_app(firebase_credentials)
+firestore_client = None
 
-    return firestore.client()
+def create_firestore_client() -> FirestoreClient:
+    global firestore_client
+
+    if firestore_client is None:
+        firebase_credentials = credentials.Certificate(FIRESTORE_SERVICE_ACCOUNT_PATH)
+
+        if not firebase_admin._apps:
+            firebase_admin.initialize_app(firebase_credentials)
+
+        firestore_client = firestore.client()
+
+    return firestore_client
 
 def firestore_test():
     db_client = create_firestore_client()
@@ -24,10 +34,8 @@ def firestore_test():
     print(doc.to_dict())
 
 
-def get_from_firestore(collection: str, document: str, db_client: FirestoreClient = None):
-
-    if not client:
-        db_client = create_firestore_client()
+def get_from_firestore(collection: str, document: str):
+    db_client = create_firestore_client()
 
     return db_client.collection(collection).document(document).get()
 

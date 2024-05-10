@@ -7,16 +7,16 @@
 
 ## In-Progress Features:
 
-- Yahoo Finance API Integration
-  - real-time pricing data for estimated real-time nw calculations.
 - Integrate Google Firestore NoSQL Database as primary database
   - Sheets to be secondary storage for mobile viewing. However, all internal calculations will be queried to the Firestore database for ease of use.
+  - All existing data needs to be migrated over.
+- Restrict use of Google Resources/Clients using Singleton pattern instead of making multiple copies for no reason.
 
 ## Upcoming Features:
-
+- Yahoo Finance API Integration
+  - real-time pricing data for estimated real-time nw calculations.
 - Updated help command to list out all of the existing commands
 - Parse Fidelity account view xslx to update holdings manually
-- Restrict use of Google Resources/Clients using Singleton pattern instead of making multiple copies for no reason.
 - Better names of files
 
 ## Backlog:
