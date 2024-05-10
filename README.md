@@ -14,7 +14,7 @@
 
 ## Upcoming Features:
 - Yahoo Finance API Integration
-  - real-time pricing data for estimated real-time nw calculations.
+  - real-time pricing data for real-time estimated nw calculations.
 - Updated help command to list out all of the existing commands
 - Parse Fidelity account view xslx to update holdings manually
 - Better names of files

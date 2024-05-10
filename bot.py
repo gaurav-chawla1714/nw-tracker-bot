@@ -397,7 +397,7 @@ async def holdings(ctx, *args):
 
 @bot.command()
 async def t(ctx):
-    firestore_test()
+    await ctx.send(get_from_firestore('holdings-data', '05092024').to_dict())
 ## String formatting helper methods ###
 
 

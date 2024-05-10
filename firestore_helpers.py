@@ -37,7 +37,9 @@ def firestore_test():
 def get_from_firestore(collection: str, document: str):
     db_client = create_firestore_client()
 
-    return db_client.collection(collection).document(document).get()
+    return db_client.collection(collection).document(document).get().to_dict()
+
+    # Add custom exception
 
 
 
