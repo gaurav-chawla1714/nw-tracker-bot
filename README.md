@@ -11,7 +11,7 @@
   - Sheets to be secondary storage for mobile viewing. However, all internal calculations will be queried to the Firestore database for ease of use.
   - All existing data needs to be migrated over.
 - Restrict use of Google Resources/Clients using Singleton pattern instead of making multiple copies for no reason.
-  - ~~Firestore~~ :ballot_box_with_check:
+  - ~~Firestore~~ ✅
   - Google Sheets :white_large_square:
 
 ## Upcoming Features:
