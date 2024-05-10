@@ -16,6 +16,8 @@
 
 - Updated help command to list out all of the existing commands
 - Parse Fidelity account view xslx to update holdings manually
+- Restrict use of Google Resources/Clients using Singleton pattern instead of making multiple copies for no reason.
+- Better names of files
 
 ## Backlog:
 - Date picking functionality
