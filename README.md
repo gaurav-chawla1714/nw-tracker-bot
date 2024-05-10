@@ -1,14 +1,29 @@
 # How to run:
 
-- ```pip install -r requirements.txt```
-- ```python bot.py```
+- `pip install -r requirements.txt`
+- `python bot.py`
 
+# Features
+
+## In-Progress Features:
+
+- Yahoo Finance API Integration
+  -
+- Integrate Google Firestore NoSQL Database as primary database
+  - Sheets to be secondary storage for mobile viewing. However, all internal calculations will be queried to the Firestore database for ease of use.
 
 ## Upcoming Features:
-- Yahoo Finance API Integration (in progress)
+
 - Updated help command to list out all of the existing commands
-- parse Fidelity account view xslx to update holdings
+- Parse Fidelity account view xslx to update holdings manually
+
+## Backlog:
 - Date picking functionality (on hold)
+
+# Bug Fixes
+
+## In-Progress Fixes:
+- N/A
 
 ## Upcoming fixes:
 
