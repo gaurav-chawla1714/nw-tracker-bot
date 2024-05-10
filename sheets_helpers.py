@@ -10,14 +10,14 @@ import custom_exceptions
 
 load_dotenv()
 
-API_SCOPES = os.getenv("API_SCOPES").split()
-SERVICE_ACCOUNT_PATH = os.getenv("SERVICE_ACCOUNT_PATH")
+SHEETS_API_SCOPES = os.getenv("SHEETS_API_SCOPES").split()
+SHEETS_SERVICE_ACCOUNT_PATH = os.getenv("SHEETS_SERVICE_ACCOUNT_PATH")
 SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
 
 
 def create_sheets_service() -> Resource:
     credentials = service_account.Credentials.from_service_account_file(
-        SERVICE_ACCOUNT_PATH, scopes=API_SCOPES)
+        SHEETS_SERVICE_ACCOUNT_PATH, scopes=SHEETS_API_SCOPES)
 
     service = build('sheets', 'v4', credentials=credentials)
 

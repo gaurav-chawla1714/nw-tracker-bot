@@ -15,8 +15,11 @@ import re
 
 from table2ascii import table2ascii as t2a, PresetStyle
 
+from firebase_admin import credentials, firestore
+
 from sheets_helpers import *
 from time_helpers import *
+from firestore_helpers import *
 
 load_dotenv()
 
@@ -391,6 +394,10 @@ async def holdings(ctx, *args):
 
     await ctx.send(args_list)
 
+
+@bot.command()
+async def t(ctx):
+    firestore_test()
 ## String formatting helper methods ###
 
 
