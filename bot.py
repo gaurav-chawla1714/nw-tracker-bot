@@ -365,6 +365,32 @@ async def prev(ctx, *args):
 
 
 
+@bot.command()
+async def holdings(ctx, *args):
+    ALL_HOLDINGS = ["VT", "VTI", "VXUS", "VINIX", "VMCIX", "VSCIX", "VTSNX", "VUSXX", "SPAXX"]
+    args_list = []
+    if args:
+        await ctx.send(args)
+        if args[0] == "all":
+            args_list = ALL_HOLDINGS
+        else:
+            for arg in args:
+                if arg in ALL_HOLDINGS:
+                    if arg not in args_list: #duplicates protection
+                        args_list.append(arg)
+                else:
+                    await ctx.send("Invalid argument detected. Defaulting to showing all holdings.")
+                    args_list = ALL_HOLDINGS
+                    break
+    else:
+        await ctx.send("No arguments detected. Defaulting to showing all holdings.")
+        args_list = ALL_HOLDINGS
+
+
+    
+
+    await ctx.send(args_list)
+
 ## String formatting helper methods ###
 
 
