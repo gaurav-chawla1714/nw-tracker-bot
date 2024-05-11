@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from google.oauth2 import service_account
 from googleapiclient.discovery import build, Resource
 
-from src.custom_exceptions import GoogleSheetException
+from custom_exceptions import GoogleSheetException
 
 load_dotenv()
 
@@ -41,7 +41,6 @@ def read_sheet(range_name: str) -> List[List[str]]:
 
 
 def update_sheet(range_name: str, data: List[List[str]]) -> bool:
-    service = create_sheets_service()
 
     body = {'values': data}
     try:
@@ -53,16 +52,15 @@ def update_sheet(range_name: str, data: List[List[str]]) -> bool:
 
 
 def get_latest_row_int() -> int:
-    service = create_sheets_service()
 
-    latest_row = read_sheet("A2:A2", service)
+    latest_row = read_sheet("A2:A2")
 
     if not latest_row:
-        values = read_sheet('B4:E', service)
+        values = read_sheet('B4:E')
 
         latest_row_int = len(values) + 3
 
-        if not update_sheet('A2:A2', [[str(latest_row_int)]], service):
+        if not update_sheet('A2:A2', [[str(latest_row_int)]]):
             raise GoogleSheetException
 
     else:
@@ -82,8 +80,8 @@ def get_number_of_entries() -> int:
         int: The total number of data entries in the Sheet.
     """
 
-    service = create_sheets_service()
+    #docstring is out of date
 
-    values = read_sheet('B4:E', service)
+    values = read_sheet('B4:E')
 
     return len(values)

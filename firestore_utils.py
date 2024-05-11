@@ -5,7 +5,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud.firestore import Client as FirestoreClient
 
-from src.custom_exceptions import FirestoreException
+from custom_exceptions import FirestoreException
 
 load_dotenv()
 
