@@ -42,6 +42,8 @@ def read_sheet(range_name: str) -> List[List[str]]:
 
 def update_sheet(range_name: str, data: List[List[str]]) -> bool:
 
+    service = create_sheets_service()
+
     body = {'values': data}
     try:
         service.spreadsheets().values().update(spreadsheetId=SPREADSHEET_ID,
@@ -56,9 +58,8 @@ def get_latest_row_int() -> int:
     latest_row = read_sheet("A2:A2")
 
     if not latest_row:
-        values = read_sheet('B4:E')
 
-        latest_row_int = len(values) + 3
+        latest_row_int = get_number_of_entries() + 3
 
         if not update_sheet('A2:A2', [[str(latest_row_int)]]):
             raise GoogleSheetException
@@ -71,10 +72,7 @@ def get_latest_row_int() -> int:
 
 def get_number_of_entries() -> int:
     """
-    Returns the total number of data entries in the Sheet (1 row/date = 1 entry). Creates own Sheets Resource if not passed in.
-
-    Args:
-        service (Resource): Google Resource to interact with the Google Sheets API.
+    Returns the total number of data entries in the Sheet (1 row/date = 1 entry).
 
     Returns:
         int: The total number of data entries in the Sheet.
