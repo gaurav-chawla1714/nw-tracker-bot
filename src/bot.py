@@ -17,9 +17,9 @@ from table2ascii import table2ascii as t2a, PresetStyle
 
 from firebase_admin import credentials, firestore
 
-from sheets_helpers import *
-from time_helpers import *
-from firestore_helpers import *
+from src.sheets_utils import *
+from src.time_utils import *
+from src.firestore_utils import *
 
 load_dotenv()
 

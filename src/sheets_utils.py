@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from google.oauth2 import service_account
 from googleapiclient.discovery import build, Resource
 
-from custom_exceptions import GoogleSheetException
+from src.custom_exceptions import GoogleSheetException
 
 load_dotenv()
 
