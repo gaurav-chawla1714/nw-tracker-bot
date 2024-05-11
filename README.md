@@ -10,15 +10,16 @@
 - Integrate Google Firestore NoSQL Database as primary database
   - Sheets to be secondary storage for mobile viewing. However, all internal calculations will be queried to the Firestore database for ease of use.
   - All existing data needs to be migrated over.
+- Integrate custom exceptions more, including messages. Integrate on read commands as well.
 
 ## Upcoming Features:
 
 - Yahoo Finance API Integration
   - real-time pricing data for real-time estimated nw calculations.
+  - can only happen after parsing Fidelity account view xslx
 - Updated help command to list out all of the existing commands
   - Right now, the only one is status
 - Parse Fidelity account view xslx to update holdings. Use pandas to parse excel file.
-- Integrate custom exceptions more, including messages. Integrate on read commands as well.
 - Custom indexes on Firestore database for date field, to allow for quick range calculation.
 - Cloud hosting? Raspberry Pi hosting?
 
