@@ -3,9 +3,10 @@
 - `pip install -r requirements.txt`
 - In an .env file, define the following:
   - `BOT_TOKEN` Your Discord bot token, found on the developer portal
-  - `CHANNEL_ID` The channel id of the channel you want the bot to message in
+  - `CHANNEL_ID` The channel ID of the channel you want the bot to message in
   - `TESSERACT_PATH` The filepath where you have Tesseract OCR installed
-  - `SHEETS_API_SCOPES` 
+  - `SHEETS_API_SCOPES` The Google Sheets API Scopes that define the level of access granted to your Google Sheets applications (learn more at https://developers.google.com/sheets/api/scopes)
+  - 
 - `python bot.py`
 
 # Features
