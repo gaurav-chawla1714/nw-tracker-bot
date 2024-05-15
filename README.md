@@ -1,6 +1,11 @@
 # How to run:
 
 - `pip install -r requirements.txt`
+- In an .env file, define the following:
+  - `BOT_TOKEN` Your Discord bot token, found on the developer portal
+  - `CHANNEL_ID` The channel id of the channel you want the bot to message in
+  - `TESSERACT_PATH` The filepath where you have Tesseract OCR installed
+  - `SHEETS_API_SCOPES` 
 - `python bot.py`
 
 # Features
@@ -24,6 +29,7 @@
 - Custom indexes on Firestore database for date field, to allow for quick range calculation.
 - Cloud hosting? Raspberry Pi hosting?
 - Slash commands for argument hints vs having to know arguments for a command
+- Finish readme tutorial writeup
 
 ## Backlog:
 
