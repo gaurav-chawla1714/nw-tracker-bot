@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 import firebase_admin
 from firebase_admin import credentials, firestore
-from google.cloud.firestore import Client as FirestoreClient
+from google.cloud.firestore import Client
 
 from custom_exceptions import FirestoreException
 
@@ -11,9 +11,9 @@ load_dotenv()
 
 FIRESTORE_SERVICE_ACCOUNT_PATH = os.getenv("FIRESTORE_SERVICE_ACCOUNT_PATH")
 
-firestore_client: FirestoreClient = None
+firestore_client: Client = None
 
-def create_firestore_client() -> FirestoreClient:
+def create_firestore_client() -> Client:
     global firestore_client
 
     if firestore_client is None:
@@ -29,7 +29,7 @@ def create_firestore_client() -> FirestoreClient:
 def firestore_test():
     db_client = create_firestore_client()
 
-    doc_ref = db_client.collection('holdings-data').document('05092024')
+    doc_ref = db_client.collection('holdings-data').document('05-09-2024')
 
     db_client = doc_ref.get()
 
@@ -45,6 +45,8 @@ def get_from_firestore(collection: str, document: str):
         raise FirestoreException
 
     # Add custom exception
+
+
 
 
 

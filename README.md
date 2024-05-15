@@ -11,6 +11,7 @@
   - Sheets to be secondary storage for mobile viewing. However, all internal calculations will be queried to the Firestore database for ease of use.
   - All existing data needs to be migrated over.
 - Integrate custom exceptions more, including messages. Integrate on read commands as well.
+- NW graphing functionality. Ability for custom date bounds.
 
 ## Upcoming Features:
 

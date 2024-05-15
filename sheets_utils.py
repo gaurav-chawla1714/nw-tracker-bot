@@ -21,11 +21,13 @@ def create_sheets_service() -> Resource:
     global sheets_service
 
     if sheets_service is None:
+        try:
+            credentials = service_account.Credentials.from_service_account_file(
+                SHEETS_SERVICE_ACCOUNT_PATH, scopes=SHEETS_API_SCOPES)
 
-        credentials = service_account.Credentials.from_service_account_file(
-            SHEETS_SERVICE_ACCOUNT_PATH, scopes=SHEETS_API_SCOPES)
-
-        sheets_service = build('sheets', 'v4', credentials=credentials)
+            sheets_service = build('sheets', 'v4', credentials=credentials)
+        except:
+            raise GoogleSheetException("Something went wrong when creating the Sheets Service!")
 
     return sheets_service
 
@@ -78,7 +80,7 @@ def get_number_of_entries() -> int:
         int: The total number of data entries in the Sheet.
     """
 
-    #docstring is out of date
+    # docstring is out of date
 
     values = read_sheet('B4:E')
 

@@ -15,7 +15,8 @@ import re
 
 from table2ascii import table2ascii as t2a, PresetStyle
 
-from firebase_admin import credentials, firestore
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 
 from sheets_utils import *
 from time_utils import *
@@ -394,9 +395,39 @@ async def holdings(ctx, *args):
 
 @bot.command()
 async def t(ctx):
-    await ctx.send(get_from_firestore('holdings-data', '05092024'))
+    await ctx.send(get_from_firestore('holdings-data', '05-09-2024'))
 
-    print(type(get_from_firestore('holdings-data', '05092024')["VT"]))
+    print(type(get_from_firestore('holdings-data', '05-09-2024')["VT"]))
+
+
+@bot.command()
+async def graph(ctx):
+    latest_row_int = get_latest_row_int()
+
+    values = read_sheet(f'B4:E{latest_row_int}')
+
+    dates = [datetime.strptime(entry[0], '%m/%d/%Y') for entry in values]
+    nw_values = [convert_money_to_float(entry[3]) for entry in values]
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(dates, nw_values, linestyle='-', color='b')
+
+    plt.xlabel('Date')
+    plt.ylabel('NW')
+
+    ax = plt.gca()
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=14))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+
+    plt.gcf().autofmt_xdate()
+
+    plt.savefig('plot.png')
+    plt.close()
+
+    with open('plot.png', 'rb') as file:
+        await ctx.send(file=discord.File(file, 'plot.png'))
+
+
 ## String formatting helper methods ###
 
 
