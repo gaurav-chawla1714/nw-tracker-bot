@@ -23,6 +23,7 @@
 - Parse Fidelity account view xslx to update holdings. Use pandas to parse excel file.
 - Custom indexes on Firestore database for date field, to allow for quick range calculation.
 - Cloud hosting? Raspberry Pi hosting?
+- Slash commands for argument hints vs having to know arguments for a command
 
 ## Backlog:
 
@@ -35,7 +36,7 @@
 
 ## In-Progress Fixes:
 
-- N/A
+- Deprecate usage of `date`. Only use `datetime` for cross-compatibility (don't set time value if only requiring date portion).
 
 ## Upcoming fixes:
 

@@ -18,6 +18,8 @@ from table2ascii import table2ascii as t2a, PresetStyle
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
+from dateutil import parser as date_parser
+
 from sheets_utils import *
 from time_utils import *
 from firestore_utils import *
@@ -90,7 +92,7 @@ class DateOptionsView(View):
 
 
 class DatePickerView(View):
-    def __init__(self, message, future: asyncio.Future[str], is_starting: bool, is_ending: bool, user_selected_start_date: date = None):
+    def __init__(self, message, future: asyncio.Future[str], is_starting: bool, is_ending: bool, user_selected_start_date: datetime = None):
         super().__init__()
         self.message = message
 
@@ -98,8 +100,8 @@ class DatePickerView(View):
         self.selected_month: str = ""
         self.selected_day: str = ""
 
-        self.starting_date: date = DATA_START_DATE
-        self.ending_date: date = date.today()
+        self.starting_date: datetime = DATA_START_DATE
+        self.ending_date: datetime = datetime.today()
 
         self.is_starting: bool = is_starting
         self.is_ending: bool = is_ending
@@ -365,10 +367,10 @@ async def prev(ctx, *args):
     await ctx.send(f'```\n{table}\n```')
 
 
-
 @bot.command()
 async def holdings(ctx, *args):
-    ALL_HOLDINGS = ["VT", "VTI", "VXUS", "VINIX", "VMCIX", "VSCIX", "VTSNX", "VUSXX", "SPAXX"]
+    ALL_HOLDINGS = ["VT", "VTI", "VXUS", "VINIX",
+                    "VMCIX", "VSCIX", "VTSNX", "VUSXX", "SPAXX"]
     args_list = []
     if args:
         await ctx.send(args)
@@ -377,7 +379,7 @@ async def holdings(ctx, *args):
         else:
             for arg in args:
                 if arg in ALL_HOLDINGS:
-                    if arg not in args_list: #duplicates protection
+                    if arg not in args_list:  # duplicates protection
                         args_list.append(arg)
                 else:
                     await ctx.send("Invalid argument detected. Defaulting to showing all holdings.")
@@ -386,9 +388,6 @@ async def holdings(ctx, *args):
     else:
         await ctx.send("No arguments detected. Defaulting to showing all holdings.")
         args_list = ALL_HOLDINGS
-
-
-    
 
     await ctx.send(args_list)
 
@@ -401,13 +400,55 @@ async def t(ctx):
 
 
 @bot.command()
-async def graph(ctx):
+async def graph(ctx, start_date_str: str = None, end_date_str: str = None):
+
+    start_date = None
+    end_date = None
+
+    # Parse start date
+    if start_date_str:
+        try:
+            start_date = date_parser.parse(start_date_str)
+
+            if start_date < DATA_START_DATE:
+                await ctx.send("Start date must be after 02/17/2024. Defaulting to no date restrictions for the graph.")
+                start_date = None
+        except ValueError:
+            await ctx.send("Invalid start date format. Please use MM/DD/YYYY.")
+
+    # Parse end date
+    # if start_date is None, then previous code block didn't succeed in parsing the date.
+    if start_date and end_date_str:
+        try:
+            end_date = date_parser.parse(end_date_str)
+
+            if start_date < DATA_START_DATE:
+                await ctx.send("End date must be after 02/17/2024. Defaulting to no end restriction.")
+                start_date = None
+        except ValueError:
+            await ctx.send("Invalid end date format. Please use MM/DD/YYYY. Defaulting to no end restriction.")
+
+    if start_date and end_date and end_date < start_date:
+        await ctx.send("End date must be later than start date. Defaulting to no date restrictions for the graph")
+        start_date = None
+        end_date = None
+
+    if not start_date:
+        start_date = DATA_START_DATE
+    if not end_date:
+        end_date = datetime.today()
+
+    print(start_date)
+    print(end_date)
+
     latest_row_int = get_latest_row_int()
 
     values = read_sheet(f'B4:E{latest_row_int}')
 
-    dates = [datetime.strptime(entry[0], '%m/%d/%Y') for entry in values]
-    nw_values = [convert_money_to_float(entry[3]) for entry in values]
+    dates = [datetime.strptime(entry[0], '%m/%d/%Y') for entry in values if start_date <=
+             datetime.strptime(entry[0], '%m/%d/%Y') <= end_date]
+    nw_values = [convert_money_to_float(entry[3]) for entry in values if start_date <= datetime.strptime(
+        entry[0], '%m/%d/%Y') <= end_date]
 
     plt.figure(figsize=(10, 5))
     plt.plot(dates, nw_values, linestyle='-', color='b')
@@ -416,8 +457,12 @@ async def graph(ctx):
     plt.ylabel('NW')
 
     ax = plt.gca()
-    ax.xaxis.set_major_locator(mdates.DayLocator(interval=14))
+    ax.xaxis.set_major_locator(mdates.AutoDateLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    
+    max_nw = max(nw_values)
+    graph_pad = max_nw * 0.2
+    ax.set_ylim(0, max_nw + graph_pad)
 
     plt.gcf().autofmt_xdate()
 
