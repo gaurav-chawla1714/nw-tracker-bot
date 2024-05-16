@@ -23,7 +23,6 @@ class NetWorthData:
         self.net_worth = net_worth
 
         self.date: datetime = datetime.combine(datetime.today(), time.min)
-        self.nw_present: bool = True # for indexing purposes..
 
     def to_dict(self) -> Dict[str, Any]:
         return {

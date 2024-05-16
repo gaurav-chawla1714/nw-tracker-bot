@@ -368,7 +368,7 @@ async def prev(ctx, *args):
 
 
 @bot.command()
-async def holdings(ctx, *args):
+async def holdings(ctx, *args): # NOT FINISHED
     ALL_HOLDINGS = ["VT", "VTI", "VXUS", "VINIX",
                     "VMCIX", "VSCIX", "VTSNX", "VUSXX", "SPAXX"]
     args_list = []
