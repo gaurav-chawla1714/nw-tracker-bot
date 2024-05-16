@@ -290,7 +290,7 @@ async def p(ctx):
             return
 
         latest_row_values = read_sheet(
-            f'B{latest_row_int}:E{latest_row_int}')
+            f'{NW_START_COLUMN}{latest_row_int}:{NW_END_COLUMN}{latest_row_int}')
 
         try:
             latest_row_date = latest_row_values[0][0]
@@ -325,7 +325,7 @@ async def p(ctx):
         info_list = [[sheets_formatted_date, str(assets), str(
             liabilities), str(round(assets - liabilities, 2))]]
 
-        range_name = f'B{current_row_num}:E{current_row_num}'
+        range_name = f'{NW_START_COLUMN}{current_row_num}:{NW_END_COLUMN}{current_row_num}'
 
         if not update_sheet(range_name, info_list):
             await ctx.send("Something went wrong while updating the Google Sheet!")
@@ -337,7 +337,7 @@ async def p(ctx):
 
 @bot.command()
 async def prev(ctx, *args):
-    num_entries = get_number_of_entries()
+    num_entries = get_num_nw_entries()
     prev_entries = 5  # default, if no args are passed in
 
     if args:
@@ -353,7 +353,7 @@ async def prev(ctx, *args):
     latest_row_int = get_latest_row_int()
 
     entries = read_sheet(
-        f'B{latest_row_int - prev_entries + 1}:E{latest_row_int}')
+        f'{NW_START_COLUMN}{latest_row_int - prev_entries + 1}:{NW_END_COLUMN}{latest_row_int}')
 
     selected_output = [[entry[0], entry[3]] for entry in entries]
 
@@ -436,17 +436,21 @@ async def graph(ctx, start_date_str: str = None, end_date_str: str = None):
     if not start_date:
         start_date = DATA_START_DATE
     if not end_date:
-        end_date = datetime.today()
+        end_date = datetime.combine(datetime.today(), time.min) #initialize current datetime to midnight for consistency when comparing
 
     print(start_date)
     print(end_date)
+    print("dates:")
 
     latest_row_int = get_latest_row_int()
 
-    values = read_sheet(f'B4:E{latest_row_int}')
+    values = read_sheet(f'{NW_START_COLUMN}{NW_START_ROW}:{NW_END_COLUMN}{latest_row_int}')
 
     dates = [datetime.strptime(entry[0], '%m/%d/%Y') for entry in values if start_date <=
              datetime.strptime(entry[0], '%m/%d/%Y') <= end_date]
+    
+    for date in dates:
+        print(date)
     nw_values = [convert_money_to_float(entry[3]) for entry in values if start_date <= datetime.strptime(
         entry[0], '%m/%d/%Y') <= end_date]
 
