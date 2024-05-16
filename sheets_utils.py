@@ -11,7 +11,8 @@ from custom_exceptions import GoogleSheetException
 load_dotenv()
 
 SHEETS_API_SCOPES: Final[List[str]] = os.getenv("SHEETS_API_SCOPES").split()
-SHEETS_SERVICE_ACCOUNT_PATH: Final[str] = os.getenv("SHEETS_SERVICE_ACCOUNT_PATH")
+SHEETS_SERVICE_ACCOUNT_PATH: Final[str] = os.getenv(
+    "SHEETS_SERVICE_ACCOUNT_PATH")
 SPREADSHEET_ID: Final[str] = os.getenv('SPREADSHEET_ID')
 
 NW_START_COLUMN: Final[str] = 'B'
@@ -20,8 +21,7 @@ NW_END_COLUMN: Final[str] = 'E'
 
 LATEST_ROW_CELL: Final[str] = 'A2'
 
-#add holdings constants
-
+# add holdings constants
 
 
 sheets_service: Resource = None
@@ -37,7 +37,8 @@ def create_sheets_service() -> Resource:
 
             sheets_service = build('sheets', 'v4', credentials=credentials)
         except:
-            raise GoogleSheetException("Something went wrong when creating the Sheets Service!")
+            raise GoogleSheetException(
+                "Something went wrong when creating the Sheets Service!")
 
     return sheets_service
 

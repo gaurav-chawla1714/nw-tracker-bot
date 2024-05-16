@@ -368,7 +368,7 @@ async def prev(ctx, *args):
 
 
 @bot.command()
-async def holdings(ctx, *args): # NOT FINISHED
+async def holdings(ctx, *args):  # NOT FINISHED
     ALL_HOLDINGS = ["VT", "VTI", "VXUS", "VINIX",
                     "VMCIX", "VSCIX", "VTSNX", "VUSXX", "SPAXX"]
     args_list = []
@@ -396,7 +396,8 @@ async def holdings(ctx, *args): # NOT FINISHED
 async def t(ctx):
     nw_data = NetWorthData(assets=3.39, liabilities=3.11, net_worth=0.28)
 
-    put_in_firestore('daily-snapshots', get_todays_date_firestore_formatted(), nw_data.to_dict())
+    put_in_firestore('daily-snapshots',
+                     get_todays_date_firestore_formatted(), nw_data.to_dict())
 
 
 @bot.command()
@@ -436,7 +437,8 @@ async def graph(ctx, start_date_str: str = None, end_date_str: str = None):
     if not start_date:
         start_date = DATA_START_DATE
     if not end_date:
-        end_date = datetime.combine(datetime.today(), time.min) #initialize current datetime to midnight for consistency when comparing
+        # initialize current datetime to midnight for consistency when comparing
+        end_date = datetime.combine(datetime.today(), time.min)
 
     print(start_date)
     print(end_date)
@@ -444,11 +446,12 @@ async def graph(ctx, start_date_str: str = None, end_date_str: str = None):
 
     latest_row_int = get_latest_row_int()
 
-    values = read_sheet(f'{NW_START_COLUMN}{NW_START_ROW}:{NW_END_COLUMN}{latest_row_int}')
+    values = read_sheet(
+        f'{NW_START_COLUMN}{NW_START_ROW}:{NW_END_COLUMN}{latest_row_int}')
 
     dates = [datetime.strptime(entry[0], '%m/%d/%Y') for entry in values if start_date <=
              datetime.strptime(entry[0], '%m/%d/%Y') <= end_date]
-    
+
     for date in dates:
         print(date)
     nw_values = [convert_money_to_float(entry[3]) for entry in values if start_date <= datetime.strptime(
@@ -463,7 +466,7 @@ async def graph(ctx, start_date_str: str = None, end_date_str: str = None):
     ax = plt.gca()
     ax.xaxis.set_major_locator(mdates.AutoDateLocator())
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-    
+
     max_nw = max(nw_values)
     graph_pad = max_nw * 0.2
     ax.set_ylim(0, max_nw + graph_pad)

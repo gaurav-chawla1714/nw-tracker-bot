@@ -56,11 +56,12 @@
 
 # Recently Finished Features (More recent on top - eventually will remove the oldest)
 
-- Generalize sheets queries with NW_START_COLUMN, NW_START_ROW, NW_END_COLUMN (5/15/24) 
+- Generalize sheets queries with NW_START_COLUMN, NW_START_ROW, NW_END_COLUMN (5/15/24)
 - Better names of files (utils?) (5/11/24)
 - Restrict use of Google Resources/Clients using Singleton pattern instead of making multiple copies for no reason. (5/10/24)
   - Firestore ✅
   - Google Sheets ✅
 
 # Recently Finished Bug Fixes
+
 - Deprecate usage of `date`. Only use `datetime` for cross-compatibility (don't set time value if only requiring date portion). (5/15/24)

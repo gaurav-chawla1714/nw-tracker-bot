@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from typing import Dict, Any
+from typing import Final, Dict, Any
 from datetime import datetime, time
 
 import firebase_admin
@@ -11,7 +11,8 @@ from custom_exceptions import FirestoreException
 
 load_dotenv()
 
-FIRESTORE_SERVICE_ACCOUNT_PATH = os.getenv("FIRESTORE_SERVICE_ACCOUNT_PATH")
+FIRESTORE_SERVICE_ACCOUNT_PATH: Final[str] = os.getenv(
+    "FIRESTORE_SERVICE_ACCOUNT_PATH")
 
 firestore_client: Client = None
 
@@ -48,17 +49,6 @@ def create_firestore_client() -> Client:
     return firestore_client
 
 
-def firestore_test():
-    db_client = create_firestore_client()
-
-    doc_ref = db_client.collection('holdings-data').document('05-09-2024')
-
-    nw_data = NetWorthData(assets=3.39, liabilities=3.11, net_worth=0.28)
-
-    db_client = doc_ref.set(nw_data.to_dict())
-
-
-
 def get_from_firestore(collection: str, document: str) -> Dict[str, Any]:
     db_client = create_firestore_client()
 
@@ -68,6 +58,7 @@ def get_from_firestore(collection: str, document: str) -> Dict[str, Any]:
         raise FirestoreException
 
     # Add custom exception
+
 
 def put_in_firestore(collection: str, document: str, data: Dict[str, Any]):
 
