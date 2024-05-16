@@ -394,9 +394,9 @@ async def holdings(ctx, *args):
 
 @bot.command()
 async def t(ctx):
-    await ctx.send(get_from_firestore('holdings-data', '05-09-2024'))
+    nw_data = NetWorthData(assets=3.39, liabilities=3.11, net_worth=0.28)
 
-    print(type(get_from_firestore('holdings-data', '05-09-2024')["VT"]))
+    put_in_firestore('daily-snapshots', get_todays_date_firestore_formatted(), nw_data.to_dict())
 
 
 @bot.command()

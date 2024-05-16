@@ -18,3 +18,6 @@ def get_formatted_local_date() -> str:
 
 def convert_to_datetime_object(date_str: str) -> datetime:
     return datetime.strptime(date_str, "%m/%d/%Y")
+
+def get_todays_date_firestore_formatted() -> datetime:
+    return datetime.combine(datetime.today(), time.min).strftime("%Y-%m-%d")

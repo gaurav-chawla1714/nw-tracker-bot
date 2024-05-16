@@ -43,7 +43,7 @@
 
 ## In-Progress Fixes:
 
-- Deprecate usage of `date`. Only use `datetime` for cross-compatibility (don't set time value if only requiring date portion).
+- N/A
 
 ## Upcoming fixes:
 
@@ -61,3 +61,6 @@
 - Restrict use of Google Resources/Clients using Singleton pattern instead of making multiple copies for no reason. (5/10/24)
   - Firestore ✅
   - Google Sheets ✅
+
+# Recently Finished Bug Fixes
+- Deprecate usage of `date`. Only use `datetime` for cross-compatibility (don't set time value if only requiring date portion). (5/15/24)
