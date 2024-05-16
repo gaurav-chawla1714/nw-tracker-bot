@@ -31,7 +31,6 @@
 - Cloud hosting? Raspberry Pi hosting?
 - Slash commands for argument hints vs having to know arguments for a command
 - Finish readme tutorial writeup
-- Generalize sheets queries with NW_START_COLUMN, NW_END_COLUMN
 
 ## Backlog:
 
@@ -57,6 +56,7 @@
 
 # Recently Finished Features (More recent on top - eventually will remove the oldest)
 
+- Generalize sheets queries with NW_START_COLUMN, NW_START_ROW, NW_END_COLUMN (5/15/24) 
 - Better names of files (utils?) (5/11/24)
 - Restrict use of Google Resources/Clients using Singleton pattern instead of making multiple copies for no reason. (5/10/24)
   - Firestore ✅
