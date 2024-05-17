@@ -14,10 +14,17 @@
 ## In-Progress Features:
 
 - Integrate Google Firestore NoSQL Database as primary database
+
   - ~~Establish "schema"~~ ✅
   - All current and future data should also be stored in Firestore from now on. 🚧
   - All existing data needs to be migrated over.
-- NW graphing functionality. Ability for custom date bounds.
+
+- Deprecate Google Sheets as primary read source
+
+  - All methods where data is read in from Google Sheets should be converted to Firestore queries.
+
+- NW graphing functionality. Ability for custom date bounds
+
   - ~~Integrate as basic "!" command~~ ✅
   - Refactor into a slash command for better argument hints
 
@@ -30,9 +37,7 @@
   - Right now, the only one is status
 - Parse Fidelity account view xslx to update holdings. Use pandas to parse excel file.
 - Custom indexes on Firestore database for date field, to allow for quick range calculation.
-- Cloud hosting? Raspberry Pi hosting?
 - Integrate custom exceptions more, including messages. Integrate on read commands as well.
-- Slash commands for argument hints vs having to know arguments for a command
 - Finish readme tutorial writeup
 
 ## Backlog:
@@ -41,6 +46,11 @@
   - start date day restrictions need to be implemented
   - end date year, month, day restrictions need to be implemented
   - once dates are collected, need to do actual queries
+
+## Wish List:
+
+- Cloud hosting? Raspberry Pi hosting?
+- Convert everything into slash commands?
 
 # Bug Fixes
 
