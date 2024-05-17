@@ -1,4 +1,4 @@
-# How to run:
+# How to run: (not finished)
 
 - `pip install -r requirements.txt`
 - In an .env file, define the following:
