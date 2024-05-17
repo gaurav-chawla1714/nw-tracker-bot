@@ -272,6 +272,8 @@ async def p(ctx):
 
         text = pytesseract.image_to_string(Image.open("temp_image.png"))
 
+        os.remove("temp_image.png")
+
         pattern = r'\$\d{1,3}(?:,\d{3})*\.\d{2}\s*[-]\s*\$\d{1,3}(?:,\d{3})*\.\d{2}'
         matches = re.findall(pattern, text)
 
@@ -329,6 +331,13 @@ async def p(ctx):
 
         if not update_sheet(range_name, info_list):
             await ctx.send("Something went wrong while updating the Google Sheet!")
+            return
+
+        nw_data = NetWorthDataFirestore(
+            assets, liabilities, round(assets - liabilities, 2))
+
+        put_in_firestore(
+            'daily-snapshots', get_todays_date_firestore_doc_formatted(), nw_data.to_dict())
 
         await ctx.send("Google Sheets successfully updated. Here's the last 5 entries for net worth:")
 
@@ -394,10 +403,11 @@ async def holdings(ctx, *args):  # NOT FINISHED
 
 @bot.command()
 async def t(ctx):
-    nw_data = NetWorthData(assets=3.39, liabilities=3.11, net_worth=0.28)
+    nw_data = NetWorthDataFirestore(
+        assets=3.39, liabilities=3.11, net_worth=0.28)
 
     put_in_firestore('daily-snapshots',
-                     get_todays_date_firestore_formatted(), nw_data.to_dict())
+                     get_todays_date_firestore_doc_formatted(), nw_data.to_dict())
 
 
 @bot.command()
@@ -440,10 +450,6 @@ async def graph(ctx, start_date_str: str = None, end_date_str: str = None):
         # initialize current datetime to midnight for consistency when comparing
         end_date = datetime.combine(datetime.today(), time.min)
 
-    print(start_date)
-    print(end_date)
-    print("dates:")
-
     latest_row_int = get_latest_row_int()
 
     values = read_sheet(
@@ -452,8 +458,6 @@ async def graph(ctx, start_date_str: str = None, end_date_str: str = None):
     dates = [datetime.strptime(entry[0], '%m/%d/%Y') for entry in values if start_date <=
              datetime.strptime(entry[0], '%m/%d/%Y') <= end_date]
 
-    for date in dates:
-        print(date)
     nw_values = [convert_money_to_float(entry[3]) for entry in values if start_date <= datetime.strptime(
         entry[0], '%m/%d/%Y') <= end_date]
 
@@ -468,16 +472,19 @@ async def graph(ctx, start_date_str: str = None, end_date_str: str = None):
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
 
     max_nw = max(nw_values)
-    graph_pad = max_nw * 0.2
-    ax.set_ylim(0, max_nw + graph_pad)
+    min_nw = min(nw_values)
+    graph_pad = max_nw * 0.15
+    ax.set_ylim(min_nw - graph_pad, max_nw + graph_pad)
 
     plt.gcf().autofmt_xdate()
 
-    plt.savefig('plot.png')
+    plt.savefig('temp_graph.png')
     plt.close()
 
-    with open('plot.png', 'rb') as file:
+    with open('temp_graph.png', 'rb') as file:
         await ctx.send(file=discord.File(file, 'plot.png'))
+
+    os.remove("temp_graph.png")
 
 
 ## String formatting helper methods ###

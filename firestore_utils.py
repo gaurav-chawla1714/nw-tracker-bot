@@ -9,6 +9,8 @@ from google.cloud.firestore import Client
 
 from custom_exceptions import FirestoreException
 
+from time_utils import *
+
 load_dotenv()
 
 FIRESTORE_SERVICE_ACCOUNT_PATH: Final[str] = os.getenv(
@@ -17,19 +19,32 @@ FIRESTORE_SERVICE_ACCOUNT_PATH: Final[str] = os.getenv(
 firestore_client: Client = None
 
 
-class NetWorthData:
+class NetWorthDataFirestore:
     def __init__(self, assets: float, liabilities: float, net_worth: float):
-        self.assets = assets
-        self.liabilities = liabilities
-        self.net_worth = net_worth
+        self.assets: float = assets
+        self.liabilities: float = liabilities
+        self.net_worth: float = net_worth
 
-        self.date: datetime = datetime.combine(datetime.today(), time.min)
+        self.date: datetime = get_todays_date_only()
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> Dict[str, float | datetime]:
         return {
             "assets": self.assets,
             "liabilities": self.liabilities,
             "net_worth": self.net_worth,
+            "date": self.date
+        }
+
+
+class HoldingsDataFirestore:
+    def __init__(self, holdings: Dict[str, float]):
+        self.holdings = holdings
+
+        self.date: datetime = get_todays_date_only()
+
+    def to_dict(self) -> Dict[str, Dict[str, float] | datetime]:
+        return {
+            "holdings": self.holdings,
             "date": self.date
         }
 
