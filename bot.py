@@ -29,7 +29,7 @@ load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 CHANNEL_ID = int(os.getenv('CHANNEL_ID'))
 pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_PATH')
-USER_ID = os.getenv('USER_ID')
+USER_ID = int(os.getenv('USER_ID'))
 
 custom_intents = discord.Intents.none()
 custom_intents.message_content = True
@@ -509,6 +509,7 @@ async def transfer(ctx):  # temporary script to transfer data from sheets to fir
 async def verify(ctx):
 
     if ctx.author.id != USER_ID:
+        await ctx.send("You are not authorized to use this command!")
         return
 
     sheets_values = read_sheet(
