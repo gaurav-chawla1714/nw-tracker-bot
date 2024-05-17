@@ -29,6 +29,7 @@ load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 CHANNEL_ID = int(os.getenv('CHANNEL_ID'))
 pytesseract.pytesseract.tesseract_cmd = os.getenv('TESSERACT_PATH')
+USER_ID = os.getenv('USER_ID')
 
 custom_intents = discord.Intents.none()
 custom_intents.message_content = True
@@ -483,35 +484,40 @@ async def graph(ctx, start_date_str: str = None, end_date_str: str = None):
     os.remove("temp_graph.png")
 
 
-# @bot.command()
-# async def transfer(ctx):  # temporary script to transfer data from sheets to firestore
-#     values = read_sheet(f'{NW_START_COLUMN}{NW_START_ROW}:{NW_END_COLUMN}')
+@bot.command()
+async def transfer(ctx):  # temporary script to transfer data from sheets to firestore
+    #     values = read_sheet(f'{NW_START_COLUMN}{NW_START_ROW}:{NW_END_COLUMN}')
 
-#     for row in values:
-#         date: datetime = date_parser.parse(row[0])
+    #     for row in values:
+    #         date: datetime = date_parser.parse(row[0])
 
-#         assets: float = money_to_float(row[1])
-#         liabilities: float = money_to_float(row[2])
-#         net_worth: float = money_to_float(row[3])
+    #         assets: float = money_to_float(row[1])
+    #         liabilities: float = money_to_float(row[2])
+    #         net_worth: float = money_to_float(row[3])
 
-#         # print(
-#         #     f'Date: {date}, Assets: {assets}, Liabilities: {liabilities}, NW: {net_worth}')
+    #         # print(
+    #         #     f'Date: {date}, Assets: {assets}, Liabilities: {liabilities}, NW: {net_worth}')
 
-#         nw_data = NetWorthDataFirestore(assets, liabilities, net_worth, date)
+    #         nw_data = NetWorthDataFirestore(assets, liabilities, net_worth, date)
 
-#         put_in_firestore(
-#             'daily-snapshots', get_firestore_doc_formatted_date(date), nw_data.to_dict())
+    #         put_in_firestore(
+    #             'daily-snapshots', get_firestore_doc_formatted_date(date), nw_data.to_dict())
+    return
 
 
 @bot.command()
 async def verify(ctx):
+
+    if ctx.author.id != USER_ID:
+        return
+
     sheets_values = read_sheet(
         f'{NW_START_COLUMN}{NW_START_ROW}:{NW_END_COLUMN}')
 
-    dates_list: List[datetime] = [
-        get_firestore_doc_formatted_date(date_parser.parse(row[0])) for row in sheets_values]
+    # dates_list: List[datetime] = [
+    #     get_firestore_doc_formatted_date(date_parser.parse(row[0])) for row in sheets_values]
 
-    print(dates_list)
+    # print(dates_list)
 
     for row in sheets_values:
         date: datetime = date_parser.parse(row[0])
