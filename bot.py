@@ -486,6 +486,11 @@ async def graph(ctx, start_date_str: str = None, end_date_str: str = None):
 
 @bot.command()
 async def transfer(ctx):  # temporary script to transfer data from sheets to firestore
+
+    # if ctx.author.id != USER_ID:
+    #     await ctx.send("You are not authorized to use this command!")
+    #     return
+
     #     values = read_sheet(f'{NW_START_COLUMN}{NW_START_ROW}:{NW_END_COLUMN}')
 
     #     for row in values:
