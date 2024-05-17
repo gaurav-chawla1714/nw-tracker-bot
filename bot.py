@@ -447,16 +447,20 @@ async def graph(ctx, start_date_str: str = None, end_date_str: str = None):
         # initialize current datetime to midnight for consistency when comparing
         end_date = datetime.combine(datetime.today(), time.min)
 
-    latest_row_int = get_latest_row_int()
+    db_client = create_firestore_client()
 
-    values = read_sheet(
-        f'{NW_START_COLUMN}{NW_START_ROW}:{NW_END_COLUMN}{latest_row_int}')
+    query = (
+        db_client.collection('daily-snapshots')
+        .where(filter=FieldFilter('date', '>=', start_date))
+        .where(filter=FieldFilter('date', '<=', end_date))
+        .order_by('date', direction=firestore.Query.ASCENDING)
+    )
 
-    dates = [datetime.strptime(entry[0], '%m/%d/%Y') for entry in values if start_date <=
-             datetime.strptime(entry[0], '%m/%d/%Y') <= end_date]
+    documents = execute_query(query)
 
-    nw_values = [money_to_float(entry[3]) for entry in values if start_date <= datetime.strptime(
-        entry[0], '%m/%d/%Y') <= end_date]
+    dates = [doc["date"] for doc in documents]
+
+    nw_values = [doc["net_worth"] for doc in documents]
 
     plt.figure(figsize=(10, 5))
     plt.plot(dates, nw_values, linestyle='-', color='b')

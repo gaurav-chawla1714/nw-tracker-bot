@@ -100,10 +100,29 @@ def query_previous_entries(limit: int = 5) -> List[Dict[str, Any] | None]:
     db_client = create_firestore_client()
     query = (
         db_client.collection('daily-snapshots')
+        .order_by('date', direction=firestore.Query.DESCENDING)
+        .limit(limit)
+    )
+    results = query.stream()
+    documents = [doc.to_dict() for doc in results]
+    return documents
+
+
+def query_previous_entries_test(limit: int = 5) -> List[Dict[str, Any] | None]:
+
+    db_client = create_firestore_client()
+    query = (
+        db_client.collection('daily-snapshots')
         .where(filter=FieldFilter('net_worth', '>=', 0))
         .order_by('date', direction=firestore.Query.DESCENDING)
         .limit(limit)
     )
+    results = query.stream()
+    documents = [doc.to_dict() for doc in results]
+    return documents
+
+
+def execute_query(query) -> List[Dict[str, Any] | None]:
     results = query.stream()
     documents = [doc.to_dict() for doc in results]
     return documents
