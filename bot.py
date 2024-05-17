@@ -13,6 +13,8 @@ from PIL import Image
 import pytesseract
 import re
 
+import pprint as pp
+
 from table2ascii import table2ascii as t2a, PresetStyle
 
 import matplotlib.pyplot as plt
@@ -400,11 +402,9 @@ async def holdings(ctx, *args):  # NOT FINISHED
 
 @bot.command()
 async def t(ctx):
-    nw_data = NetWorthDataFirestore(
-        assets=3.39, liabilities=3.11, net_worth=0.28)
 
-    put_in_firestore('daily-snapshots',
-                     get_todays_date_firestore_doc_formatted(), nw_data.to_dict())
+    vals = query_previous_entries(limit=5)
+    pp.pprint(vals)
 
 
 @bot.command()

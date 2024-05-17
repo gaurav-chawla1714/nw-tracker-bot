@@ -1,11 +1,12 @@
 import os
 from dotenv import load_dotenv
-from typing import Final, Dict, Any
+from typing import Final, Dict, Any, List
 from datetime import datetime, time
 
 import firebase_admin
 from firebase_admin import credentials, firestore
 from google.cloud.firestore import Client
+from google.cloud.firestore_v1.base_query import FieldFilter
 
 from custom_exceptions import FirestoreException
 
@@ -92,3 +93,17 @@ def put_in_firestore(collection: str, document: str, data: Dict[str, Any]):
         doc_ref.update(data)
     else:
         doc_ref.set(data)
+
+
+def query_previous_entries(limit: int = 5) -> List[Dict[str, Any] | None]:
+
+    db_client = create_firestore_client()
+    query = (
+        db_client.collection('daily-snapshots')
+        .where(filter=FieldFilter('net_worth', '>=', 0))
+        .order_by('date', direction=firestore.Query.DESCENDING)
+        .limit(limit)
+    )
+    results = query.stream()
+    documents = [doc.to_dict() for doc in results]
+    return documents
