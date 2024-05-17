@@ -264,8 +264,8 @@ async def d(ctx):
         await ctx.send("something went wrong...")
 
 
-@bot.command()
-async def p(ctx):
+@bot.command(name="p")
+async def parse(ctx):
     if not ctx.message.attachments:
         await ctx.send("Please include an image to parse.")
     else:

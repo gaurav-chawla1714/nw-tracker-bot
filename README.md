@@ -13,15 +13,12 @@
 
 ## In-Progress Features:
 
-- Integrate Google Firestore NoSQL Database as primary database
-
-  - ~~Establish "schema"~~ ✅
-  - All current and future data should also be stored in Firestore from now on. 🚧
-  - ~~All existing data needs to be migrated over.~~ ✅
-
 - Deprecate Google Sheets as primary read source
 
   - All methods where data is read in from Google Sheets should be converted to Firestore queries.
+    - `parse()`
+    - `prev()`
+    - ~~`graph()`~~ ✅
 
 - NW graphing functionality. Ability for custom date bounds
 
@@ -70,6 +67,12 @@
   - asyncio.TimeoutError does not properly disable buttons
 
 # Recently Finished Features
+
+- Integrate Google Firestore NoSQL Database as primary database (5/17/24)
+
+  - Establish "schema"
+  - All current and future data should also be stored in Firestore from now on.
+  - All existing data needs to be migrated over.
 
 - Generalize sheets queries with NW_START_COLUMN, NW_START_ROW, NW_END_COLUMN (5/15/24)
 - Better names of files (utils?) (5/11/24)
