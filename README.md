@@ -13,14 +13,16 @@
 
 ## In-Progress Features:
 
-- Integrate custom exceptions more, including messages. Integrate on read commands as well.
+- Integrate Google Firestore NoSQL Database as primary database
+  - ~~Establish "schema"~~ ✅
+  - All current and future data should also be stored in Firestore from now on. 🚧
+  - All existing data needs to be migrated over.
 - NW graphing functionality. Ability for custom date bounds.
+  - ~~Integrate as basic "!" command~~ ✅
+  - Refactor into a slash command for better argument hints
 
 ## Upcoming Features:
 
-- Integrate Google Firestore NoSQL Database as primary database
-  - Sheets to be secondary storage for mobile viewing. However, all internal calculations will be queried to the Firestore database for ease of use.
-  - All existing data needs to be migrated over.
 - Yahoo Finance API Integration
   - real-time pricing data for real-time estimated nw calculations.
   - can only happen after parsing Fidelity account view xslx
@@ -29,6 +31,7 @@
 - Parse Fidelity account view xslx to update holdings. Use pandas to parse excel file.
 - Custom indexes on Firestore database for date field, to allow for quick range calculation.
 - Cloud hosting? Raspberry Pi hosting?
+- Integrate custom exceptions more, including messages. Integrate on read commands as well.
 - Slash commands for argument hints vs having to know arguments for a command
 - Finish readme tutorial writeup
 

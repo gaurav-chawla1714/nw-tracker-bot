@@ -322,14 +322,10 @@ async def p(ctx):
                 await ctx.send("Could not update the row counter!")
                 return
 
-        sheets_formatted_date = get_formatted_local_date()
-
-        info_list = [[sheets_formatted_date, str(assets), str(
+        info_list = [[get_formatted_local_date(), str(assets), str(
             liabilities), str(round(assets - liabilities, 2))]]
 
-        range_name = f'{NW_START_COLUMN}{current_row_num}:{NW_END_COLUMN}{current_row_num}'
-
-        if not update_sheet(range_name, info_list):
+        if not update_sheet(f'{NW_START_COLUMN}{current_row_num}:{NW_END_COLUMN}{current_row_num}', info_list):
             await ctx.send("Something went wrong while updating the Google Sheet!")
             return
 
@@ -339,7 +335,7 @@ async def p(ctx):
         put_in_firestore(
             'daily-snapshots', get_todays_date_firestore_doc_formatted(), nw_data.to_dict())
 
-        await ctx.send("Google Sheets successfully updated. Here's the last 5 entries for net worth:")
+        await ctx.send("Google Sheets/Firestore successfully updated. Here's the last 5 entries for net worth:")
 
         await prev(ctx, "5")  # displays last 5 entries
 
