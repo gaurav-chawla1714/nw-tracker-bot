@@ -279,9 +279,9 @@ async def p(ctx):
 
         nw_list = matches[0].split(" ")
 
-        assets = convert_money_to_float(nw_list[0])
+        assets = money_to_float(nw_list[0])
         # liabilities should be positive, for consistency (unlike screenshot)
-        liabilities = abs(convert_money_to_float(nw_list[1]))
+        liabilities = abs(money_to_float(nw_list[1]))
 
         await ctx.send(f'Assets: {"${:,.2f}".format(assets)}\nLiabilities: {"${:,.2f}".format(liabilities)}\nNet Worth: {"${:,.2f}".format(round(assets - liabilities, 2))}')
 
@@ -454,7 +454,7 @@ async def graph(ctx, start_date_str: str = None, end_date_str: str = None):
     dates = [datetime.strptime(entry[0], '%m/%d/%Y') for entry in values if start_date <=
              datetime.strptime(entry[0], '%m/%d/%Y') <= end_date]
 
-    nw_values = [convert_money_to_float(entry[3]) for entry in values if start_date <= datetime.strptime(
+    nw_values = [money_to_float(entry[3]) for entry in values if start_date <= datetime.strptime(
         entry[0], '%m/%d/%Y') <= end_date]
 
     plt.figure(figsize=(10, 5))
@@ -486,7 +486,7 @@ async def graph(ctx, start_date_str: str = None, end_date_str: str = None):
 ## String formatting helper methods ###
 
 
-def convert_money_to_float(money_str: str) -> float:
+def money_to_float(money_str: str) -> float:
     return float(money_str.replace('$', '').replace(',', ''))
 
 
