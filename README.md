@@ -67,7 +67,7 @@
 - Date picking functionality bugs
   - asyncio.TimeoutError does not properly disable buttons
 
-# Recently Finished Features (More recent on top - eventually will remove the oldest)
+# Recently Finished Features
 
 - Generalize sheets queries with NW_START_COLUMN, NW_START_ROW, NW_END_COLUMN (5/15/24)
 - Better names of files (utils?) (5/11/24)
