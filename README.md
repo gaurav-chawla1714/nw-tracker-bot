@@ -29,7 +29,7 @@
 
 - Yahoo Finance API Integration
   - real-time pricing data for real-time estimated nw calculations.
-  - can only happen after parsing Fidelity account view xslx
+  - can only happen after integrating "holdings" data
 - Updated help command to list out all of the existing commands
   - Right now, the only one is status
 - Integrate "Holdings" data
