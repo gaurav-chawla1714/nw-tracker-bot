@@ -17,7 +17,7 @@
 
   - ~~Establish "schema"~~ ✅
   - All current and future data should also be stored in Firestore from now on. 🚧
-  - All existing data needs to be migrated over.
+  - ~~All existing data needs to be migrated over.~~ ✅
 
 - Deprecate Google Sheets as primary read source
 
@@ -35,10 +35,12 @@
   - can only happen after parsing Fidelity account view xslx
 - Updated help command to list out all of the existing commands
   - Right now, the only one is status
-- Parse Fidelity account view xslx to update holdings. Use pandas to parse excel file.
+- Integrate "Holdings" data
+  - Parse Fidelity account view xslx to update holdings. Use pandas to parse excel file.
 - Custom indexes on Firestore database for date field, to allow for quick range calculation.
 - Integrate custom exceptions more, including messages. Integrate on read commands as well.
 - Finish readme tutorial writeup
+- Rename methods in `time_utils.py` for clarity and conciseness.
 
 ## Backlog:
 

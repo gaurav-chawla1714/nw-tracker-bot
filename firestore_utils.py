@@ -20,12 +20,15 @@ firestore_client: Client = None
 
 
 class NetWorthDataFirestore:
-    def __init__(self, assets: float, liabilities: float, net_worth: float):
+    def __init__(self, assets: float, liabilities: float, net_worth: float, date: datetime = None):
         self.assets: float = assets
         self.liabilities: float = liabilities
         self.net_worth: float = net_worth
 
-        self.date: datetime = get_todays_date_only()
+        if not date:
+            self.date: datetime = get_todays_date_only()
+        else:
+            self.date: datetime = date
 
     def to_dict(self) -> Dict[str, float | datetime]:
         return {
@@ -37,10 +40,13 @@ class NetWorthDataFirestore:
 
 
 class HoldingsDataFirestore:
-    def __init__(self, holdings: Dict[str, float]):
+    def __init__(self, holdings: Dict[str, float], date: datetime = None):
         self.holdings = holdings
 
-        self.date: datetime = get_todays_date_only()
+        if not date:
+            self.date: datetime = get_todays_date_only()
+        else:
+            self.date: datetime = date
 
     def to_dict(self) -> Dict[str, Dict[str, float] | datetime]:
         return {

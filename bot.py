@@ -483,6 +483,55 @@ async def graph(ctx, start_date_str: str = None, end_date_str: str = None):
     os.remove("temp_graph.png")
 
 
+# @bot.command()
+# async def transfer(ctx):  # temporary script to transfer data from sheets to firestore
+#     values = read_sheet(f'{NW_START_COLUMN}{NW_START_ROW}:{NW_END_COLUMN}')
+
+#     for row in values:
+#         date: datetime = date_parser.parse(row[0])
+
+#         assets: float = money_to_float(row[1])
+#         liabilities: float = money_to_float(row[2])
+#         net_worth: float = money_to_float(row[3])
+
+#         # print(
+#         #     f'Date: {date}, Assets: {assets}, Liabilities: {liabilities}, NW: {net_worth}')
+
+#         nw_data = NetWorthDataFirestore(assets, liabilities, net_worth, date)
+
+#         put_in_firestore(
+#             'daily-snapshots', get_firestore_doc_formatted_date(date), nw_data.to_dict())
+
+
+@bot.command()
+async def verify(ctx):
+    sheets_values = read_sheet(
+        f'{NW_START_COLUMN}{NW_START_ROW}:{NW_END_COLUMN}')
+
+    dates_list: List[datetime] = [
+        get_firestore_doc_formatted_date(date_parser.parse(row[0])) for row in sheets_values]
+
+    print(dates_list)
+
+    for row in sheets_values:
+        date: datetime = date_parser.parse(row[0])
+
+        assets: float = money_to_float(row[1])
+        liabilities: float = money_to_float(row[2])
+        net_worth: float = money_to_float(row[3])
+
+        doc = get_from_firestore(
+            'daily-snapshots', get_firestore_doc_formatted_date(date))
+
+        if date == datetimewithnanoseconds_to_datetime(doc["date"]) and assets == doc["assets"] and liabilities == doc["liabilities"] and net_worth == doc["net_worth"]:
+            continue
+        else:
+            await ctx.send(f'{row[0]} is NOT the same! Please verify manually. Exiting now...')
+            return
+
+    await ctx.send("Everything is verified to be the same!")
+
+
 ## String formatting helper methods ###
 
 
