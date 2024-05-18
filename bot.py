@@ -382,6 +382,9 @@ async def holdings(ctx, *args):  # NOT FINISHED
 async def t(ctx):
     df = pd.read_csv('Portfolio_Positions_May-18-2024.csv')
 
+    df = df[["Symbol", "Description", "Quantity",
+             "Last Price Change", "Current Value"]]
+
     print(df)
 
 
