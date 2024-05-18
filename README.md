@@ -16,7 +16,7 @@
 - Deprecate Google Sheets as primary read source
 
   - All methods where data is read in from Google Sheets should be converted to Firestore queries.
-    - `parse()`
+    - ~~`parse()`~~ ✅
     - `prev()`
     - ~~`graph()`~~ ✅
 

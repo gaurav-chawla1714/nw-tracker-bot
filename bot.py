@@ -25,6 +25,7 @@ from dateutil import parser as date_parser
 from sheets_utils import *
 from time_utils import *
 from firestore_utils import *
+from data_classes import NetWorthDataClass
 
 load_dotenv()
 
@@ -288,55 +289,21 @@ async def parse(ctx):
 
         await ctx.send(f'Assets: {"${:,.2f}".format(assets)}\nLiabilities: {"${:,.2f}".format(liabilities)}\nNet Worth: {"${:,.2f}".format(round(assets - liabilities, 2))}')
 
-        try:
-            latest_row_int = get_latest_row_int()
-        except GoogleSheetException:
-            await ctx.send("Something went wrong while updating the Google Sheet with the latest row number.")
-            return
-
-        latest_row_values = read_sheet(
-            f'{NW_START_COLUMN}{latest_row_int}:{NW_END_COLUMN}{latest_row_int}')
+        nw_data = NetWorthDataClass(
+            assets, liabilities, round(assets - liabilities, 2))
 
         try:
-            latest_row_date = latest_row_values[0][0]
-        except IndexError:
-            await ctx.send("Discrepancy between latest row index and Sheet file. Fix is in progress.")
-            return
-        todays_date = get_formatted_local_date()
-
-        latest_row_date_object = convert_to_datetime_object(latest_row_date)
-        todays_date_object = convert_to_datetime_object(todays_date)
-
-        if todays_date_object < latest_row_date_object:
-            await ctx.send("Somehow, today's date is before the latest entry date. The Sheet needs to be manually inspected.")
+            current_row_num = get_next_nw_entry_row()
+        except Exception(e):
+            await ctx.send(e.__str__)
             return
 
-        elif todays_date_object == latest_row_date_object:
-            await ctx.send("There's already an entry for today. The row will be overwritten with the updated values.")
-
-            current_row_num = latest_row_int
-
-        else:
-            await ctx.send("There's no existing entry for today. A new row will be created.")
-
-            current_row_num = latest_row_int + 1
-
-            if not update_sheet("A2:A2", [[str(current_row_num)]]):
-                await ctx.send("Could not update the row counter!")
-                return
-
-        info_list = [[get_formatted_local_date(), str(assets), str(
-            liabilities), str(round(assets - liabilities, 2))]]
-
-        if not update_sheet(f'{NW_START_COLUMN}{current_row_num}:{NW_END_COLUMN}{current_row_num}', info_list):
+        if not update_sheet(f'{NW_START_COLUMN}{current_row_num}:{NW_END_COLUMN}{current_row_num}', nw_data.to_sheets_list()):
             await ctx.send("Something went wrong while updating the Google Sheet!")
             return
 
-        nw_data = NetWorthDataFirestore(
-            assets, liabilities, round(assets - liabilities, 2))
-
         put_in_firestore(
-            'daily-snapshots', get_todays_date_firestore_doc_formatted(), nw_data.to_dict())
+            'nw-data', get_todays_date_firestore_doc_formatted(), nw_data.to_firestore_dict())
 
         await ctx.send("Google Sheets/Firestore successfully updated. Here's the last 5 entries for net worth:")
 
@@ -358,16 +325,24 @@ async def prev(ctx, *args):
         except ValueError:
             await ctx.send("Argument is not a valid integer. Defaulting to the previous 5 entries.")
 
-    latest_row_int = get_latest_row_int()
+    db_client = create_firestore_client()
 
-    entries = read_sheet(
-        f'{NW_START_COLUMN}{latest_row_int - prev_entries + 1}:{NW_END_COLUMN}{latest_row_int}')
+    # tests for existence of
+    query = (
+        db_client.collection('nw-data')
+        .where(filter=FieldFilter("net_worth", ">=", 0))
+        .order_by('date', direction=firestore.Query.DESCENDING)
+        .limit(prev_entries)
+    )
 
-    selected_output = [[entry[0], entry[3]] for entry in entries]
+    documents = execute_query(query)
+
+    selected_output = [[get_formatted_date(doc["date"]), "${:,.2f}".format(
+        doc["net_worth"])] for doc in documents]
 
     table = t2a(
         header=["Date", "Net Worth"],
-        body=selected_output,
+        body=selected_output[::-1],
         first_col_heading=True,
         style=PresetStyle.thin_compact
     )
@@ -402,9 +377,7 @@ async def holdings(ctx, *args):  # NOT FINISHED
 
 @bot.command()
 async def t(ctx):
-
-    vals = query_previous_entries(limit=5)
-    pp.pprint(vals)
+    return
 
 
 @bot.command()
@@ -495,22 +468,23 @@ async def transfer(ctx):  # temporary script to transfer data from sheets to fir
     #     await ctx.send("You are not authorized to use this command!")
     #     return
 
-    #     values = read_sheet(f'{NW_START_COLUMN}{NW_START_ROW}:{NW_END_COLUMN}')
+    # values = read_sheet(f'{NW_START_COLUMN}{NW_START_ROW}:{NW_END_COLUMN}')
 
-    #     for row in values:
-    #         date: datetime = date_parser.parse(row[0])
+    # for row in values:
+    #     date: datetime = date_parser.parse(row[0])
 
-    #         assets: float = money_to_float(row[1])
-    #         liabilities: float = money_to_float(row[2])
-    #         net_worth: float = money_to_float(row[3])
+    #     assets: float = money_to_float(row[1])
+    #     liabilities: float = money_to_float(row[2])
+    #     net_worth: float = money_to_float(row[3])
 
-    #         # print(
-    #         #     f'Date: {date}, Assets: {assets}, Liabilities: {liabilities}, NW: {net_worth}')
+    #     # print(
+    #     #     f'Date: {date}, Assets: {assets}, Liabilities: {liabilities}, NW: {net_worth}')
 
-    #         nw_data = NetWorthDataFirestore(assets, liabilities, net_worth, date)
+    #     nw_data = NetWorthDataClass(
+    #         assets, liabilities, net_worth, date)
 
-    #         put_in_firestore(
-    #             'daily-snapshots', get_firestore_doc_formatted_date(date), nw_data.to_dict())
+    #     put_in_firestore(
+    #         'nw-data', get_firestore_doc_formatted_date(date), nw_data.to_dict())
     return
 
 
@@ -537,7 +511,7 @@ async def verify(ctx):
         net_worth: float = money_to_float(row[3])
 
         doc = get_from_firestore(
-            'daily-snapshots', get_firestore_doc_formatted_date(date))
+            'nw-data', get_firestore_doc_formatted_date(date))
 
         if date == datetimewithnanoseconds_to_datetime(doc["date"]) and assets == doc["assets"] and liabilities == doc["liabilities"] and net_worth == doc["net_worth"]:
             continue

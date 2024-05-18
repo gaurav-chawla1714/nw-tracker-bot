@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from google.oauth2 import service_account
 from googleapiclient.discovery import build, Resource
 
+from time_utils import *
 from custom_exceptions import GoogleSheetException
 
 load_dotenv()
@@ -83,16 +84,44 @@ def get_latest_row_int() -> int:
     return latest_row_int
 
 
-def get_num_nw_entries() -> int:
+def get_next_nw_entry_row() -> int:
     """
-    Returns the total number of data entries in the Sheet (1 row/date = 1 entry).
+    For the net worth section of the sheets document, determines the next row to place data.
+    If the data in the latest row is from the same date as the current date, indicate to overwrite existing latest row. 
+    Else, if it is from a previous date, indicate to create a new row.
 
     Returns:
-        int: The total number of data entries in the Sheet.
+        int: The row in which to place the next row of data
     """
 
-    # docstring is out of date
+    try:
+        latest_row_int = get_latest_row_int()
+    except GoogleSheetException:
+        raise GoogleSheetException(
+            "Error when trying to access the latest row int!")
 
-    values = read_sheet(f'{NW_START_COLUMN}{NW_START_ROW}:{NW_END_COLUMN}')
+    latest_row_values = read_sheet(
+        f'{NW_START_COLUMN}{latest_row_int}:{NW_END_COLUMN}{latest_row_int}')
 
-    return len(values)
+    try:
+        latest_row_date_object = convert_to_datetime_object(
+            latest_row_values[0][0])
+    except IndexError:
+        raise GoogleSheetException(
+            "There was not a value in the date column of the latest row!")
+
+    todays_date_object = get_todays_date_only()
+
+    if todays_date_object < latest_row_date_object:
+        raise GoogleSheetException(
+            "todays date is less than date in latest entry somehow")
+
+    elif todays_date_object == latest_row_date_object:
+        current_row_int = latest_row_int
+    else:
+        current_row_int = latest_row_int + 1
+
+    if not update_sheet(f'{LATEST_ROW_CELL}:{LATEST_ROW_CELL}', [[str(current_row_int)]]):
+        raise GoogleSheetException("Could not update the row counter!")
+
+    return current_row_int

@@ -17,6 +17,10 @@ def get_formatted_local_date() -> str:
     return f'{now.month}/{now.day}/{now.year}'
 
 
+def get_formatted_date(date: datetime) -> str:
+    return f'{date.month}/{date.day}/{date.year}'
+
+
 def convert_to_datetime_object(date_str: str) -> datetime:
     return datetime.strptime(date_str, "%m/%d/%Y")
 
