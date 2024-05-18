@@ -13,7 +13,7 @@ from PIL import Image
 import pytesseract
 import re
 
-import pprint as pp
+import pandas as pd
 
 from table2ascii import table2ascii as t2a, PresetStyle
 
@@ -337,12 +337,15 @@ async def prev(ctx, *args):
 
     documents = execute_query(query)
 
-    selected_output = [[get_formatted_date(doc["date"]), "${:,.2f}".format(
-        doc["net_worth"])] for doc in documents]
+    selected_output = []
+
+    for i in range(len(documents) - 1, -1, -1):
+        selected_output += [[get_formatted_date(
+            documents[i]["date"]), "${:,.2f}".format(documents[i]["net_worth"])]]
 
     table = t2a(
         header=["Date", "Net Worth"],
-        body=selected_output[::-1],
+        body=selected_output,
         first_col_heading=True,
         style=PresetStyle.thin_compact
     )
@@ -377,7 +380,9 @@ async def holdings(ctx, *args):  # NOT FINISHED
 
 @bot.command()
 async def t(ctx):
-    return
+    df = pd.read_csv('Portfolio_Positions_May-18-2024.csv')
+
+    print(df)
 
 
 @bot.command()
